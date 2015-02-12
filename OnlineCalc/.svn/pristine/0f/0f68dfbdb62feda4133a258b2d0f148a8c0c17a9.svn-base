@@ -1,0 +1,103 @@
+package com.howbuy.onlinecalc.bolt;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+
+import com.howbuy.onlinecalc.utils.Dimension;
+
+@SuppressWarnings("serial")
+public class CalcJoinBolt extends BaseRichBolt
+{
+    /** 表示1个月，3个月，6个月共三个维度的join.**/
+    private static final int JOIN_DIMENSION_NUM = 3;
+    
+    private OutputCollector collector;
+    
+    /** key为fundcode, value为map, value中map key为dimension, value为最大盈利和最大回撤. **/
+    private Map<String, Map<String, double[]>> fundProfits;
+    
+    @SuppressWarnings("rawtypes")
+    public void prepare(Map stormConf, TopologyContext ctx, OutputCollector collector)
+    {
+        this.collector = collector;
+        this.fundProfits = new HashMap<String, Map<String,double[]>>();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void execute(Tuple tuple)
+    {
+        System.out.println("[CalcJoinBolt:] enter execute()....");
+        
+        //多重锚定..
+        List<Tuple> anchors = new ArrayList<Tuple>();
+        anchors.add(tuple);
+        
+        String fundcode = tuple.getString(0);
+        Map<String, double[]> tupleMap = (Map<String, double[]>)tuple.getValue(1);
+        Map.Entry<String, double[]> entry = tupleMap.entrySet().iterator().next();
+        
+        String dimension = entry.getKey();
+        double[] profitlost = entry.getValue();
+        
+        Map<String, double[]> map = fundProfits.get(fundcode);
+        if (null == map)
+        {
+            map = new HashMap<String, double[]>();
+            map.putAll(tupleMap);
+            fundProfits.put(fundcode, map);
+        }
+        
+        if (null == map.get(dimension) || 0 == map.get(dimension).length)
+        {
+            map.put(dimension, profitlost);
+        }
+        
+        StringBuilder message = new StringBuilder();
+        
+        //当一个基金的三个维度都算完后，才开始向下个bolt分发消息.
+        if (JOIN_DIMENSION_NUM == map.keySet().size())
+        {
+            double[][] profitlosts = new double[3][2];
+            profitlosts[0] = map.get(Dimension.MONTH1.name());
+            profitlosts[1] = map.get(Dimension.MONTH3.name());
+            profitlosts[2] = map.get(Dimension.MONTH6.name());
+            
+            message.append("[").append(fundcode).append("]").append(":")
+                   .append("[")
+                   .append(profitlosts[0][0]).append(",")
+                   .append(profitlosts[0][1]).append(",")
+                   .append(profitlosts[1][0]).append(",")
+                   .append(profitlosts[1][1]).append(",")
+                   .append(profitlosts[2][0]).append(",")
+                   .append(profitlosts[2][1]).append(",")
+                   .append("]");
+            
+            System.out.println("[CalcJoinBolt]:" + message);
+            
+            collector.emit(anchors, new Values(fundcode, 
+                    profitlosts[0][0], profitlosts[0][1],
+                    profitlosts[1][0], profitlosts[1][1],
+                    profitlosts[2][0], profitlosts[2][1]));
+        }
+        
+        collector.ack(tuple);
+    }
+
+    public void declareOutputFields(OutputFieldsDeclarer declarer)
+    {
+        declarer.declare(new Fields("fundcode", 
+                "monthly-profit", "monthly-lost",
+                "tri-month-profit", "tri-month-lost",
+                "half-year-profit", "half-year-lost"));
+    }
+}

@@ -1,0 +1,68 @@
+package com.howbuy.onlinecalc.topology;
+
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
+
+import com.howbuy.onlinecalc.bolt.CalcJoinBolt;
+import com.howbuy.onlinecalc.bolt.DimensionSplitBolt;
+import com.howbuy.onlinecalc.bolt.HalfYearCalcBolt;
+import com.howbuy.onlinecalc.bolt.MonthlyCalcBolt;
+import com.howbuy.onlinecalc.bolt.TriMonthCalcBolt;
+import com.howbuy.onlinecalc.spout.TriggerCalcSpout;
+
+/**
+ * 基金盈亏计算的拓扑.
+ * @author li.zhang
+ *
+ */
+public class ProfitLostTopology
+{
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        /**
+         * storm的分组策略grouping只是决定：在哪个节点的哪个任务上执行这个bolt, 并不决定拓扑图中的这个bolt执行不执行;事实上，
+         * 
+         * 拓扑图上的每个bolt总是会被执行的.
+         */
+        TopologyBuilder builder = new TopologyBuilder();
+        builder.setSpout("trigger-calc", new TriggerCalcSpout());
+        builder.setBolt("dimension_split", new DimensionSplitBolt()).shuffleGrouping("trigger-calc");
+        
+        builder.setBolt("monthly_calc", new MonthlyCalcBolt()).allGrouping("dimension_split");    //一个月的基金最大盈亏计算.
+        builder.setBolt("tri_month_calc", new TriMonthCalcBolt()).allGrouping("dimension_split"); //三个月的基金最大盈亏计算.
+        builder.setBolt("half_year_calc", new HalfYearCalcBolt()).allGrouping("dimension_split"); //半年的基金最大盈亏计算.
+        
+        builder.setBolt("calc_join", new CalcJoinBolt()).fieldsGrouping("monthly_calc", new Fields("fundcode")) //三个粒度的执行结果join.
+                    .fieldsGrouping("tri_month_calc", new Fields("fundcode"))
+                    .fieldsGrouping("half_year_calc", new Fields("fundcode"));
+        
+        Config conf = new Config();
+        conf.setDebug(true);
+        
+        try
+        {
+            if (null == args || 0 >= args.length)
+            {
+                LocalCluster cluster = new LocalCluster();
+                cluster.submitTopology("calc_fund_profit_lost", conf, builder.createTopology());
+                Thread.sleep(1000);
+                cluster.shutdown();
+            }
+            else
+            {
+                StormSubmitter.submitTopology(args[0], conf, builder.createTopology());
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}

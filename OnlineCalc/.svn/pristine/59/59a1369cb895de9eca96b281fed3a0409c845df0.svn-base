@@ -1,0 +1,477 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0039)http://macrochen.iteye.com/blog/1439469 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><style type="text/css" id="90603320000"></style><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站</title>
+    <meta name="description" content="一个storm topology运行起来之后, 会在supervisor 机器上启动一些进程来运行spout和bolt实例. 如果一个topology里面一共有一个spout, 一个bolt。 其中spout的parallelism� ...">
+    <meta name="keywords" content="storm storm中supervisor, task, worker, spout, bolt之间的关系">
+    <link rel="shortcut icon" href="http://macrochen.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://macrochen.iteye.com/open_search.xml" title="ITeye">
+    <link href="http://macrochen.iteye.com/rss" rel="alternate" title="疯狂的菠菜" type="application/rss+xml">
+    <link href="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/blog.css" media="screen" rel="stylesheet" type="text/css">
+<link href="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/blue.css" media="screen" rel="stylesheet" type="text/css">
+    <script type="text/javascript" async="" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/ga.js"></script><script type="text/javascript" async="" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/ga.js"></script><script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/application.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/shCoreCommon.js" type="text/javascript"></script>
+<script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/hotkey.js" type="text/javascript"></script>
+  <script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/code_favorites.js" type="text/javascript"></script>
+<script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/weiboshare.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="http://macrochen.iteye.com/blog/1439469#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">招聘</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+      <div id="user_nav">
+      <a href="http://macrochen.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://macrochen.iteye.com/login">登录</a>
+    <a href="http://macrochen.iteye.com/signup" class="nobg">注册</a>
+  </div>
+
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="http://macrochen.iteye.com/">疯狂的菠菜</a></h1>
+        </div>
+        <div id="fd"></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class="blog_navbar_for"><a href="http://macrochen.iteye.com/"><strong>博客</strong></a></li>
+            <li><a href="http://macrochen.iteye.com/weibo">微博</a></li>
+            <li><a href="http://macrochen.iteye.com/album">相册</a></li>
+            <li><a href="http://macrochen.iteye.com/link">收藏</a></li>
+            <li><a href="http://macrochen.iteye.com/blog/guest_book">留言</a></li>
+            <li><a href="http://macrochen.iteye.com/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="http://macrochen.iteye.com/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text" value="">
+              <input class="submit_search" type="submit" value="">
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style="display:none">
+  <a href="http://macrochen.iteye.com/" class="p-author" target="_blank">macrochen</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站.htm">storm中supervisor, task, worker, spout, bolt之间的关系</a>
+      <em class="actions">      </em>
+    </h3>
+    <ul class="blog_categories"><strong>博客分类：</strong> <li><a href="http://macrochen.iteye.com/category/202803">Storm</a></li> </ul>
+        <div class="news_tag"><a href="http://www.iteye.com/blogs/tag/storm">storm</a></div>
+  </div>
+
+  <div id="blog_content" class="blog_content">
+    一个storm topology运行起来之后, 会在supervisor 机器上启动一些进程来运行spout和bolt实例.
+<br>
+<br>如果一个topology里面一共有一个spout, 一个bolt。 其中spout的parallelism是2, bolt的parallelism是4, 那么我们可以把这个topology的总工作量看成是6， 那么一共有6个task，那么/tasks/{topology-id}下面一共会有6个以task-id命名的文件，其中两个文件的内容是spout的id, 其它四个文件的内容是bolt的id。
+<br>
+<br>task-&gt;node+port, 它其实就是从task-id到supervisor-id+port的映射， 也就是把这个task分配给某台机器的某个端口来做。
+<br>
+<br>topology里面的组件(spout/bolt)都根据parallelism被分成多个task, 而这些task被分配给supervisor的多个worker来执行。
+<br>
+<br>task都会跟一个componment-id关联, componment是spout和bolt的一个统称.
+<br>
+<br>对于每一个component在部署的时候都会指定使用的数量, 在storm-user中有一个<a href="https://groups.google.com/forum/?fromgroups#!topic/storm-user/Ix-2gFZ5u0A" target="_blank">讨论</a>说明了这个问题:
+<br>里面的大意是说, 通过设置parallelism来指定执行spout/bolt的线程数量. 而在配置中还有另外一个地方(backtype.storm.Config.setNumWorkers(int))来指定一个storm集群中执行topolgy的进程数量, 所有的线程将在这些指定的worker进程中运行. 比如说一个topology中要启动300个线程来运行spout/bolt, 而指定的worker进程数量是60个, 那么storm将会给每个worker分配5个线程来跑spout/bolt, 如果要对一个topology进行调优, 可以调整worker数量和spout/bolt的parallelism数量(调整参数之后要记得重新部署topology. 后续会为该操作提供一个swapping的功能来减小重新部署的时间).
+<br>
+<br>对于worker和task之间的比例, nathan也给出了<a href="https://groups.google.com/forum/?fromgroups#!topic/storm-user/nXB-dW9KlV4" target="_blank">参考</a>, 即1个worker包含10~15个左右, 当然这个参考, 实际情况还是要根据配置和测试情况
+<br>
+<br>参考:
+<br><a href="http://xumingming.sinaapp.com/category/storm/" target="_blank">http://xumingming.sinaapp.com/category/storm/</a>
+  </div>
+
+  
+
+  
+  
+  <iframe src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/187.htm" scrolling="no" width="468" height="60" frameborder="0"></iframe>
+  
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type="sina" href="javascript:;" title="分享到新浪微博"><img src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/sina.jpg"></a>
+      <a data-type="qq" href="javascript:;" title="分享到腾讯微博"><img src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="http://macrochen.iteye.com/blog/1439479" class="next" title="storm ui上emit和transferred的区别">storm ui上emit和transferred的区别</a>
+      |
+      <a href="http://macrochen.iteye.com/blog/1428093" class="pre" title="最近碰到的一些storm问题总结(不断更新)">最近碰到的一些storm问题总结(不断更新)</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2012-03-04 13:53</li>
+      <li>浏览 4626</li>
+      <li><a href="http://macrochen.iteye.com/blog/1439469#comments">评论(0)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/architecture">企业架构</a></li>      
+      <li class="last"><a href="http://www.iteye.com/wiki/blog/1439469" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="http://macrochen.iteye.com/login" style="background-color:white;"> <img src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/login_icon.png" style="vertical-align:middle; margin-right: 10px;"></a><a href="http://macrochen.iteye.com/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1439469;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'storm中supervisor, task, worker, spout, bolt之间的关系');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'storm中supervisor, task, worker, spout, bolt之间的关系');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href="http://macrochen.iteye.com/"><img alt="macrochen的博客" class="logo" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/4ebc7a3e-6267-404e-b3cd-84a16478bc4c.jpg" title="macrochen的博客: 疯狂的菠菜" width=""></a></div>
+  <div id="blog_owner_name">macrochen</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 1350901 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/icon_minigender_1.gif" title="男"></li>
+              <li>来自: 杭州</li>
+              <li><img src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/offline.gif"></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style="font-weight:normal;font-size:12px;padding-left:30px;"><a href="http://macrochen.iteye.com/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://dylinshi126.iteye.com/" target="_blank"><img alt="dylinshi126的博客" class="logo" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/user-logo-thumb.gif" title="dylinshi126的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://dylinshi126.iteye.com/" target="_blank" title="dylinshi126">dylinshi126</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://zymming6.iteye.com/" target="_blank"><img alt="zymming6的博客" class="logo" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/user-logo-thumb.gif" title="zymming6的博客: " width="48px"></a></div>
+                <div class="left"><a href="http://zymming6.iteye.com/" target="_blank" title="zymming6">zymming6</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://yuquan0405.iteye.com/" target="_blank"><img alt="yuquan0405的博客" class="logo" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/user-logo-thumb.gif" title="yuquan0405的博客: yuquan0405" width="48px"></a></div>
+                <div class="left"><a href="http://yuquan0405.iteye.com/" target="_blank" title="yuquan0405">yuquan0405</a></div>
+              </div>
+            
+              <div class="user_visit">
+                <div class="logo"><a href="http://soulmachine.iteye.com/" target="_blank"><img alt="soulmachine的博客" class="logo" src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/176b960e-84d0-36e3-a307-0da6e1c60710-thumb.jpg" title="soulmachine的博客: 灵魂机器" width="48px"></a></div>
+                <div class="left"><a href="http://soulmachine.iteye.com/" target="_blank" title="soulmachine">soulmachine</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="http://macrochen.iteye.com/">全部博客 (576)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/71402">Book (62)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/9296">Architecture (6)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/14727">Java (39)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/46178">Taobao (41)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/41872">Distributed (4)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/8457">Life (72)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/52560">Database (7)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/56050">Spring (16)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/9731">Photography (15)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/9432">Bicycle (41)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/56049">Test (20)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/33764">jBPM (8)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/20550">Business (12)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/56385">Movie (3)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/8455">Ajax (15)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/77964">Code (7)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/8087">Eclipse (96)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/102557">VIM (2)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/9842">Music (6)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/119219">Groovy (10)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/128746">AutoHotKey (3)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/8456">Dorado (10)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/91900">Maven (7)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/160831">Scrum (5)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/27573">English (20)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/46294">Financial (12)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/89764">OSGi (3)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/108977">Other (4)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/110700">Tool (6)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/149111">Browser (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/165409">PPT (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/180863">Project Management (4)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/180864">Agile (6)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/192015">Nosql (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/199769">Search engine (6)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/199832">Shell (2)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/201191">Open Source (4)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/202803">Storm (10)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/203605">Guava (3)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/217166">Baby (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/235456">netty (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/235457">Algorithm (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/269101">Linux (1)</a></li>
+                
+                  <li><a href="http://macrochen.iteye.com/category/269102">Python (2)</a></li>
+                
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="http://macrochen.iteye.com/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="http://macrochen.iteye.com/blog/post">我的论坛</a> (212)
+                </li>
+                <li><a href="http://macrochen.iteye.com/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="http://macrochen.iteye.com/blog/monthblog/2014-07">2014-07</a> (1)</li>
+                
+                  <li><a href="http://macrochen.iteye.com/blog/monthblog/2013-03">2013-03</a> (9)</li>
+                
+                  <li><a href="http://macrochen.iteye.com/blog/monthblog/2012-07">2012-07</a> (2)</li>
+                
+                <li><a href="http://macrochen.iteye.com/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+              <div id="comments_top">
+                <h5>评论排行榜</h5>
+                <ul>
+                  
+                    <li><a href="http://macrochen.iteye.com/blog/2088682" title="使用JsonEditor开源组件写了一个Json Viewer">使用JsonEditor开源组件写了一个Json Viewe ...</a></li>
+                  
+                </ul>
+              </div>
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href="http://xiaoingzizizizi.iteye.com/" target="_blank" title="xiaoingzizizizi">xiaoingzizizizi</a>： 
+                  lz我在使用OSGi下引入了一个axis2的webservic ...<br>
+                  <a href="http://macrochen.iteye.com/blog/550200#bc2364090">OSGi使用小结</a>
+                </li>
+                
+                <li>
+                  <a href="http://liu-305.iteye.com/" target="_blank" title="liu_305">liu_305</a>： 
+                  哥们儿，你好！能共享下那个storm与spring结合的案例例 ...<br>
+                  <a href="http://macrochen.iteye.com/blog/1408436#bc2364058">storm的序列化问题及与spring的结合方式</a>
+                </li>
+                
+                <li>
+                  <a href="http://draem0507.iteye.com/" target="_blank" title="draem0507">draem0507</a>： 
+                  本地化工具<br>
+                  <a href="http://macrochen.iteye.com/blog/2088682#bc2363960">使用JsonEditor开源组件写了一个Json Viewer</a>
+                </li>
+                
+                <li>
+                  <a href="http://zou-hai-jun.iteye.com/" target="_blank" title="zou_hai_jun">zou_hai_jun</a>： 
+                  过滤每日日志文件的时候，如果存在上级目录，貌似获取：Strin ...<br>
+                  <a href="http://macrochen.iteye.com/blog/1346993#bc2362708">如何删除N天前的log4j日志</a>
+                </li>
+                
+                <li>
+                  <a href="http://xiangping.iteye.com/" target="_blank" title="xiangping">xiangping</a>： 
+                  不少错误，垃圾<br>
+                  <a href="http://macrochen.iteye.com/blog/737058#bc2358086">Google Guava 库用法整理</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br>
+          © 2003-2014 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/saved_resource" width="0" height="0">
+
+<script src="./storm中supervisor, task, worker, spout, bolt之间的关系 - 疯狂的菠菜 - ITeye技术网站_files/tracking.js" type="text/javascript"></script>
+
+    
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-11679351-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+      
+    
+  
+
+</body></html>

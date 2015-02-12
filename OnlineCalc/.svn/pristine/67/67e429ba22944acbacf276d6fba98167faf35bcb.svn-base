@@ -1,0 +1,18 @@
+package com.howbuy.onlinecalc.utils;
+
+/**
+ * 统计维度
+ * 
+ * @author guangbao.wang
+ * 
+ */
+public enum Dimension {
+	MONTH1, // 近一月
+	MONTH3, // 近3月
+	MONTH6, // 近6月
+	CURYEAR, // 今年以来
+	YEAR1, // 近一年
+	YEAR2, // 近两年
+	YEAR3, // 近三年
+	ALL;// 成立以来
+}

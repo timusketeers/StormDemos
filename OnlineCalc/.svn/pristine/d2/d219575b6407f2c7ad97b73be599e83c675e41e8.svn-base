@@ -1,0 +1,36 @@
+package com.howbuy.onlinecalc.function;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import backtype.storm.tuple.Values;
+
+import com.alibaba.fastjson.JSONObject;
+import com.howbuy.onlinecalc.utils.Dimension;
+import com.howbuy.onlinecalc.utils.FundUtils;
+
+import storm.trident.operation.BaseFunction;
+import storm.trident.operation.TridentCollector;
+import storm.trident.tuple.TridentTuple;
+
+@SuppressWarnings("serial")
+public class FundProfitLostFunc extends BaseFunction
+{
+    public void execute(TridentTuple tuple, TridentCollector collector)
+    {
+        String fundCode = tuple.getString(0);
+        Map<String, double[]> map = new HashMap<String, double[]>();
+        
+        map.put(Dimension.MONTH1.name(), FundUtils.calcProfitLost(fundCode, Dimension.MONTH1));
+        map.put(Dimension.MONTH3.name(), FundUtils.calcProfitLost(fundCode, Dimension.MONTH3));
+        map.put(Dimension.MONTH6.name(), FundUtils.calcProfitLost(fundCode, Dimension.MONTH6));
+        
+        JSONObject jsonObj = new JSONObject();
+        jsonObj.putAll(map);
+        String jsonstr = jsonObj.toJSONString();
+        System.out.println("json string is : " + jsonstr);
+        
+        collector.emit(new Values(jsonstr));
+    }
+
+}

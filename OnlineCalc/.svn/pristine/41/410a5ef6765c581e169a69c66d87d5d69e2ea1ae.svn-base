@@ -1,0 +1,53 @@
+package com.howbuy.onlinecalc.bolt;
+
+import java.util.Map;
+import java.util.Properties;
+
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Tuple;
+
+@SuppressWarnings("serial")
+public class CalcRsNotifyBolt extends BaseRichBolt
+{
+    @SuppressWarnings("rawtypes")
+    public void prepare(Map stormConf, TopologyContext ctx, OutputCollector collector)
+    {
+
+    }
+
+    public void execute(Tuple tuple)
+    {
+        //dispatch();
+        System.out.println("[CalcRsNotifyBolt]execute end.....");
+    }
+
+    public void declareOutputFields(OutputFieldsDeclarer declarer)
+    {
+
+    }
+
+    private void dispatch()
+    {
+        Properties props = new Properties();
+        
+        //注意这里要是hostname，不要直接写ip地址.
+        props.put("metadata.broker.list","slave1.hadoop:9092");
+        props.put("zookeeper.connect", "slave1.hadoop:2181");
+        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("producer.type", "async");
+        props.put("compression.codec", "1");
+        ProducerConfig config = new ProducerConfig(props);
+        Producer<String, String> producer = new Producer<String, String>(config);
+        KeyedMessage<String, String> data = new KeyedMessage<String, String>("calc_cmd_topic", "calc_over"); //topic, message
+        producer.send(data);
+        
+        producer.close();
+        
+    }
+}

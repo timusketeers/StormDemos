@@ -1,0 +1,65 @@
+package com.howbuy.onlinecalc.topology;
+
+import storm.trident.TridentTopology;
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.tuple.Fields;
+
+import com.howbuy.onlinecalc.aggregator.ProfitLostAggregator;
+import com.howbuy.onlinecalc.function.FundProfitLostFunc;
+import com.howbuy.onlinecalc.function.FundSplitFunc;
+
+/**
+ * 基金盈亏计算的拓扑.
+ * 
+ * @author li.zhang
+ * 
+ */
+public class DrpcProfitLostTopology
+{
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        /**
+         * storm的分组策略grouping只是决定：在哪个节点的哪个任务上执行这个bolt, 并不决定拓扑图中的这个bolt执行不执行;事实上，
+         * 
+         * 拓扑图上的每个bolt总是会被执行的.
+         */
+        String functionName = "calc";
+        TridentTopology builder = new TridentTopology();
+        builder.newDRPCStream(functionName)
+               //这里的new Fields("args")在trident drpc的时候必须这样写，因为builder.newDrpcStream()发出的元组声明是new Fields("args"),注意这一点.
+               .each(new Fields("args"), new FundSplitFunc(), new Fields("fundcode"))
+               .shuffle().parallelismHint(50)
+               .each(new Fields("fundcode"), new FundProfitLostFunc(), new Fields("fundcode-profit-lost-result"))
+               .aggregate(new Fields("fundcode-profit-lost-result"), new ProfitLostAggregator(), new Fields("joined-profit-lost-rslt"))
+               .project(new Fields("joined-profit-lost-rslt"));//project这里表示DRPCClient.execute()方法返回的结果只是joined-profit-lost-rslt这个fields的tuple.
+
+        Config conf = new Config();
+        conf.setNumWorkers(2);
+        conf.setDebug(true);
+
+        try
+        {
+            if (null == args || 0 >= args.length)
+            {
+                LocalCluster cluster = new LocalCluster();
+                cluster.submitTopology("calc_fund_profit_lost", conf, builder.build());
+                Thread.sleep(1000);
+                cluster.shutdown();
+            }
+            else
+            {
+                StormSubmitter.submitTopology(args[0], conf, builder.build());
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}

@@ -1,0 +1,191 @@
+package com.howbuy.onlinecalc.utils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FundService {
+
+	/**
+	 * 获得基金代码。
+	 * 
+	 * @return
+	 */
+	public static List<String> getAllJjdms() {
+		List<String> jjdms = new ArrayList<String>();
+		try {
+			String sql = "SELECT DISTINCT A.JJDM FROM JJXX1 A,JJHB B WHERE A.JJDM = B.JJDM AND A.CPFL = 2";
+			List<Map<String, Object>> list = query(sql);
+			for (Map<String, Object> map : list) {
+				if (map.get("JJDM") != null) {
+					jjdms.add(map.get("JJDM").toString());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jjdms;
+	}
+
+	/**
+	 * 获取基金回报信息
+	 * 
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] getJjhbList(String jjdm, String start, String end) {
+		double[] jjhbs = null;
+		int index = 0;
+		try {
+			String sql1 = "SELECT HBCL FROM JJHB T WHERE T.JJDM = ? AND T.JZRQ >=? AND T.JZRQ <= ? ORDER BY JZRQ DESC";
+			String sql2 = "SELECT HBCL FROM JJHB T WHERE T.JJDM = ? AND T.JZRQ <= ? ORDER BY JZRQ DESC";
+			List<Map<String, Object>> list = null;
+			if (end != null && !"".equals(end.trim())) {
+				list = query(sql1, jjdm, end, start);
+			} else {
+				list = query(sql2, jjdm, start);
+			}
+			if (list != null && !list.isEmpty()) {
+				jjhbs = new double[list.size()];
+				for (Map<String, Object> map : list) {
+					Object hbcl = map.get("HBCL");
+					if (hbcl != null) {
+						jjhbs[index++] = Double.valueOf(hbcl.toString());
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jjhbs;
+	}
+
+	/**
+	 * 计算最大赢利和最大回撤
+	 * 
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] calcReal(String jjdm, String start, String end) {
+		double[] list = getJjhbList(jjdm, start, end);
+		double[] result = new double[2];
+		if (list != null) {
+			double max = list[0];
+			double min = list[0];
+			for (int i = 0; i < list.length; i++) {
+				for (int j = i + 1; j < list.length; j++) {
+					double value = (list[i] - list[j]) / (list[j] + 100) * 100;
+					if (value > max) {
+						max = value;
+					}
+					if (value < min) {
+						min = value;
+					}
+				}
+			}
+			if (max < 0) {
+				max = 0;
+			}
+			if (min > 0) {
+				min = 0;
+			}
+			result[0] = max;
+			result[1] = min;
+		}
+		return result;
+	}
+
+	/**
+	 * 通用数据查询方法
+	 * 
+	 * @param sql
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public static List query(String sql, Object... params) throws Exception {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		List list = new ArrayList();
+		try {
+			conn = DBConnection.getConn();
+			ps = conn.prepareStatement(sql.toString());
+			if (params != null) {
+				for (int i = 0; i < params.length; i++) {
+					ps.setObject(i + 1, params[i]);
+				}
+			}
+			rs = ps.executeQuery();
+			ResultSetMetaData resultSetMetaData = rs.getMetaData();
+			int columns = resultSetMetaData.getColumnCount();
+			while (rs.next()) {
+				Map m = new HashMap();
+				for (int i = 0; i < columns; i++) {
+					Object obj = null;
+					int type = resultSetMetaData.getColumnType(i + 1);
+					int scale = resultSetMetaData.getScale(i + 1);
+					String columnName = resultSetMetaData.getColumnName(i + 1);
+					switch (type) {
+					case Types.LONGVARCHAR:
+						obj = rs.getLong(columnName);
+						break;
+					case Types.CHAR:
+						obj = rs.getCharacterStream(columnName);
+						break;
+					case Types.BIGINT:
+						obj = rs.getLong(columnName);
+						break;
+					case Types.NUMERIC:
+						switch (scale) {
+						case 0:
+							obj = rs.getInt(columnName);
+							break;
+						case -127:
+							obj = rs.getFloat(columnName);
+							break;
+						default:
+							obj = rs.getBigDecimal(columnName);
+						}
+						break;
+					case Types.VARCHAR:
+						obj = rs.getString(columnName);
+						break;
+					case Types.DATE:
+						obj = rs.getString(columnName);
+						break;
+					case Types.TIMESTAMP:
+						obj = rs.getDate(columnName);
+						break;
+					case Types.BLOB:
+						obj = rs.getBlob(columnName);
+						break;
+					default:
+						obj = rs.getString(columnName);
+					}
+					m.put(columnName.toUpperCase(), obj);
+				}
+				list.add(m);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			DBConnection.close(rs);
+			DBConnection.close(ps);
+			DBConnection.close(conn);
+		}
+		return list;
+	}
+}

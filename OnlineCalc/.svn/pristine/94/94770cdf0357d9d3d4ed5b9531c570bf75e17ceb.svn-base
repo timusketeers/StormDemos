@@ -1,0 +1,84 @@
+package com.howbuy.onlinecalc.utils;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+public class FundUtils {
+
+	/**
+	 * 获得基金代码。
+	 * 
+	 * @return
+	 */
+	public static List<String> getAllFundCode() {
+		return FundService.getAllJjdms();
+	}
+
+	/**
+	 * strom计算调用入口。
+	 * 
+	 * @param jjdm
+	 * @param dimension
+	 */
+	public static void calcProfitLost(String jjdm, Dimension dimension) {
+		String start = DateUtils.getCurrentDate();
+		String end = "";
+		switch (dimension) {
+		case MONTH1:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.MONTH, 1);
+			break;
+		case MONTH3:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.MONTH, 3);
+			break;
+		case MONTH6:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.MONTH, 6);
+			break;
+		case YEAR1:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.YEAR, 1);
+			break;
+		case YEAR2:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.YEAR, 2);
+			break;
+		case YEAR3:
+			end = DateUtils.getBeforeDate(new Date(), Calendar.YEAR, 3);
+			break;
+		case CURYEAR:
+			// 今年以来
+			end = Calendar.getInstance().get(Calendar.YEAR) + "0101";
+			break;
+		case ALL:
+			// 成立以来
+			break;
+		default:
+			break;
+		}
+		double[] result = FundService.calcReal(jjdm, start, end);// 计算
+		System.out.println("最大赢利:" + result[0]);
+		System.out.println("最大回撤:" + result[1]);
+	}
+
+	public static void main(String[] args) {
+		System.out.println("***********start***********");
+		long start  = System.currentTimeMillis();
+		Dimension dimension = Dimension.ALL;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.MONTH1;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.MONTH3;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.MONTH6;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.YEAR1;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.YEAR2;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.YEAR3;
+		calcProfitLost("630010", dimension);
+		dimension = Dimension.CURYEAR;
+		calcProfitLost("630010", dimension);
+		long end  = System.currentTimeMillis();
+		System.out.println("耗时:"+(end-start));
+		System.out.println("***********end***********");
+	}
+}

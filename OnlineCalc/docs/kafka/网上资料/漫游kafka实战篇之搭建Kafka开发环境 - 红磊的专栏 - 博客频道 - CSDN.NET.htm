@@ -1,0 +1,991 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0056)http://blog.csdn.net/honglei915/article/details/37563647 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" async="" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ga.js"></script><script id="allmobilize" type="text/javascript" charset="utf-8" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/allmobilize.min.js" data-entry="1" data-preview="0" data-view="original"></script><style type="text/css"></style><script type="text/javascript" charset="utf-8" defer="" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/m.min.js"></script>
+
+    <style type="text/css"></style>
+ <meta http-equiv="Cache-Control" content="no-siteapp"><link rel="alternate" media="handheld" href="http://blog.csdn.net/honglei915/article/details/37563647#">
+
+    <title>漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏
+        - 博客频道 - CSDN.NET</title>
+    
+    <meta name="description" content="上篇文章中我们搭建了kafka的服务器，并可以使用Kafka的命令行工具创建topci，发送和接收消息。下面我们来搭建kafka的开发环境。大家开发环境需要引入kafka的jar包，一种方式是将Kafka安装包中lib下的jar包加入到项目的classpath中，这种比较简单了。不过我们使用另一种更加流行的方式，使用maven管理jar包依赖。创建好maven项目后，在">
+    <script src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad.js"></script>
+        <!--new top-->
+       
+        <link rel="stylesheet" href="http://static.csdn.net/public/common/toolbar/css/index.css">
+        <!--new top-->
+
+    <link rel="Stylesheet" type="text/css" href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/style.css">
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://blog.csdn.net/honglei915/rss/list">
+    <link rel="shortcut icon" href="http://csdnimg.cn/public/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/default.css">
+ 
+
+
+
+<script src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/share.js"></script><link href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/bdsstyle.css" rel="stylesheet" type="text/css"><script type="text/javascript" charset="utf-8" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/tracking.js"></script><script type="text/javascript" charset="utf-8" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/main.js"></script><script charset="utf-8" async="" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/sm.min.js"></script><link rel="stylesheet" type="text/css" href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/style(1).css"><link type="text/css" rel="stylesheet" href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/style(2).css"><script src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/logger.js"></script><link rel="stylesheet" href="http://bdimg.share.baidu.com/static/api/css/share_style0_16.css?v=89a7173d.css"></head><body><iframe style="display: none; " frameborder="0"></iframe>
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/html.js" type="text/javascript"></script><div class="csdn-toolbar csdn-toolbar-skin-black ">        <div class="container row center-block ">          <div class="col-md-3 pull-left logo clearfix"><a href="http://www.csdn.net/?ref=toolbar" title="CSDN首页" target="_blank" class="icon"></a><a title="频道首页" href="http://blog.csdn.net/?ref=toolbar_logo" target="_blank" class="img blog-icon"></a></div>          <div class="pull-right login-wrap unlogin">            <ul class="btns">              <li class="loginlink"><a href="https://passport.csdn.net/account/login?ref=toolbar" target="_top">登录&nbsp;</a>|<a target="_top" href="https://passport.csdn.net/account/register?ref=toolbar">&nbsp;注册</a></li>              <li class="search">                <div class="icon on-search-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <form action="http://so.csdn.net/search" method="get" target="_blank">                      <input type="hidden" value="toolbar" name="ref" accesskey="2">                      <div class="border">                        <input placeholder="搜索" type="text" value="" name="q" accesskey="2"><span class="icon-enter-sm"></span>                      </div>                    </form>                  </div>                </div>              </li>              <li class="favor">                <div class="icon on-favor-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div style="display:none;" class="favor-success"><span class="msg">收藏成功</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <div style="display:none;" class="favor-failed"><span class="icon-danger-lg"></span><span class="msg">收藏失败，请重新收藏</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <form role="form" class="form-horizontal favor-form">                      <div class="form-group">                        <div class="clearfix">                          <label for="input-title" class="col-sm-2 control-label">标题</label>                          <div class="col-sm-10">                            <input id="inputTitle" type="text" placeholder="" class="title form-control">                          </div>                        </div>                        <div class="alert alert-danger"><strong></strong>标题不能为空</div>                      </div>                      <div class="form-group">                        <label for="input-url" class="col-sm-2 control-label">网址</label>                        <div class="col-sm-10">                          <input id="input-url" type="text" placeholder="" class="url form-control">                        </div>                      </div>                      <div class="form-group">                        <label for="input-tag" class="col-sm-2 tag control-label">标签</label>                        <div class="col-sm-10">                          <input id="input-tag" type="text" class="form-control tag">                        </div>                      </div>                      <div class="form-group">                        <label for="input-description" class="description col-sm-2 control-label">摘要</label>                        <div class="col-sm-10">                          <textarea id="input-description" class="form-control description"></textarea>                        </div>                      </div>                      <div class="form-group">                        <div class="col-sm-offset-2 col-sm-10 ft">                          <div class="col-sm-4 pull-left">                            <div class="checkbox">                              <label>                                <input type="checkbox" name="share" checked="checked" class="share">公开                              </label>                            </div>                          </div>                          <div class="col-sm-8 pull-right favor-btns">                            <button type="button" class="cancel btn btn-default">取消</button>                            <button type="submit" class="submit btn btn-primary">收藏</button>                          </div>                        </div>                      </div>                    </form>                  </div>                </div>              </li>              <li class="notify">                <div style="display:none" class="number"></div>                <div style="display:none" class="icon-hasnotes-sm"></div>                <div id="header_notice_num"></div>                <div class="icon on-notify-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div id="note1" class="csdn_note">                      <div class="box"></div>                    <iframe src="about:block" frameborder="0" allowtransparency="true" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe></div>                  </div>                </div>              </li>              <li class="ugc">                <div class="icon on-ugc-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <dl>                      <dt><a href="http://geek.csdn.net/news/expert?ref=toolbar" target="_blank" class="p-news clearfix"><em class="icon"></em><span>分享资讯</span></a></dt>                      <dt><a href="http://share.csdn.net/slides/new?ref=toolbar" target="_blank" class="p-doc clearfix"><em class="icon"></em><span>传PPT/文档</span></a></dt>                      <dt><a href="http://bbs.csdn.net/topics/new?ref=toolbar" target="_blank" class="p-ask clearfix"><em class="icon"></em><span>提问题</span></a></dt>                      <dt><a href="http://write.blog.csdn.net/postedit?ref=toolbar" target="_blank" class="p-blog clearfix"><em class="icon"></em><span>写博客</span></a></dt>                      <dt><a href="http://u.download.csdn.net/upload?ref=toolbar" target="_blank" class="p-src clearfix"><em class="icon"></em><span>传资源</span></a></dt>                      <dt><a href="https://code.csdn.net/projects/new?ref=toolbar" target="_blank" class="c-obj clearfix"><em class="icon"></em><span>创建项目</span></a></dt>                      <dt><a href="https://code.csdn.net/snippets/new?ref=toolbar" target="_blank" class="c-code clearfix"><em class="icon"></em><span>创建代码片</span></a></dt>                    </dl>                  </div>                </div>              </li>              <li class="profile">                <div class="icon on-profile-icon"><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/100x100.jpg" class="curr-icon-img">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div class="bd">                      <dl class="clearfix">                        <dt class="pull-left img"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="avatar"><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/100x100.jpg"></a></dt>                        <dd class="info"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="nickname"></a><a class="set-nick" href="https://passport.csdn.net/account/profile">设置昵称<span class="write-icon"></span></a><span class="dec"><a class="fill-dec" href="http://my.csdn.net/" target="_blank">编辑自我介绍，让更多人了解你<span class="write-icon"></span></a></span></dd>                      </dl>                    </div>                    <div class="ft clearfix"><a target="_blank" href="http://my.csdn.net/my/account/changepwd?ref=toolbar" class="pull-left"><span class="icon-cog"></span>帐号设置</a><a href="https://passport.csdn.net/account/logout?ref=toolbar" target="_top" class="pull-right "><span class="icon-signout"></span><span class="out">退出</span></a></div>                  </div>                </div>              </li>              <li class="apps">                <div class="icon on-apps-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>社区</h5>                      </dt>                      <dd> <a href="http://blog.csdn.net/?ref=toolbar" target="_blank">博客</a></dd>                      <dd> <a href="http://bbs.csdn.net/?ref=toolbar" target="_blank">论坛</a></dd>                      <dd> <a href="http://download.csdn.net/?ref=toolbar" target="_blank">下载</a></dd>                      <dd><a href="http://share.csdn.net/?ref=toolbar" target="_blank">Share</a></dd>                      <dd><a href="http://geek.csdn.net/?ref=toolbar" target="_blank">极客头条</a></dd>                    </dl>                  </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>服务</h5>                      </dt>                      <dd> <a href="https://code.csdn.net/?ref=toolbar" target="_blank">CODE</a></dd>                      <dd> <a href="http://hero.csdn.net/?ref=toolbar" target="_blank">英雄会</a></dd>                      <dd> <a href="http://huiyi.csdn.net/?ref=toolbar" target="_blank">活动</a></dd>                      <dd> <a href="http://www.csto.com/?ref=toolbar" target="_blank">CSTO</a></dd>                    </dl>                  </div>                  <div class="detail last">                    <dl>                      <dt>                        <h5>俱乐部</h5>                      </dt>                      <dd> <a href="http://cto.csdn.net/?ref=toolbar" target="_blank">CTO俱乐部</a></dd>                      <dd> <a href="http://student.csdn.net/?ref=toolbar" target="_blank">高校俱乐部</a></dd>                    </dl>                  </div>                </div>              </div>            </li>            </ul>          </div>        </div>    </div>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/honglei915">红磊的专栏</a></h2>
+            <h3>好记忆不如烂笔头</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+                <li id="btnContents"><a href="http://blog.csdn.net/honglei915?viewmode=contents"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_mulu&#39;])">
+                    <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/honglei915?viewmode=list"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_zhaiyao&#39;])">
+                    <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/honglei915/rss/list"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_RSS&#39;])">
+                    <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ico_rss.gif">订阅</span></a></li>                
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "honglei915";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/honglei915";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod="popu_3"> 
+
+<a href="http://bbs.csdn.net/topics/390812950?page=5" target="_blank">
+<font color="blue">博客专家福利
+</font></a>
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/csdnproduct/article/details/40181275" target="_blank">
+<font color="red">公告：CSDN博客积分系统升级</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/40047403" target="_blank">
+<font color="blue">有奖试读&amp;征文:我们在互联网上奋斗的故事
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/39894901" target="_blank">
+<font color="red">参与话题讨论，好礼等你拿
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://www.csdn.net/article/2014-10-22/2822245-weixin-devday-shenzhen" target="_blank">
+<font color="blue">深圳微信开发者大会不容错过的十大理由
+</font></a>
+
+
+</div>                        </div>
+                        
+
+  
+<link href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/comment1.css" type="text/css" rel="stylesheet">
+<link href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/style1.css" type="text/css" rel="stylesheet">
+<script language="JavaScript" type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/jquery.cookie.js"></script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/main(1).js"></script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET.htm">
+        漫游kafka实战篇之搭建Kafka开发环境
+        </a></span>
+    </h1>
+</div>
+
+    <div class="article_manage">
+        <span class="link_categories">
+        分类：
+            <a href="http://blog.csdn.net/honglei915/article/category/2383433" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_fenlei&#39;]);">Kafka</a> 
+        </span>
+    <span class="link_postdate">2014-07-09 18:38</span>
+    <span class="link_view" title="阅读次数">726人阅读</span>
+    <span class="link_comments" title="评论次数"><a href="http://blog.csdn.net/honglei915/article/details/37563647#comments" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_pinglun&#39;])">评论</a>(0)</span>
+    <span class="link_collect"><a href="javascript:void(0);" onclick="javascript:_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shoucang&#39;]);collectArticle(&#39;漫游kafka实战篇之搭建Kafka开发环境&#39;,&#39;37563647&#39;);return false;" title="收藏">收藏</a></span>
+    <span class="link_report"><a href="http://blog.csdn.net/honglei915/article/details/37563647#report" onclick="javascript:_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_jubao&#39;]);report(37563647,2);return false;" title="举报">举报</a></span>
+    
+</div>
+<div class="tag2box"><a href="http://www.csdn.net/tag/Kafka" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">Kafka</a></div>
+
+  
+    
+<div id="article_content" class="article_content">
+
+<div><a target="_blank" href="http://http//blog.csdn.net/honglei915/article/details/37563647">转载注明出处：http://blog.csdn.net/honglei915/article/details/37563647</a></div>
+<div>
+<div><span style="font-family:Tahoma; font-size:16px; orphans:2; widows:2">上篇文章中我们搭建了kafka的服务器，并可以使用Kafka的命令行工具创建topic，发送和接收消息。下面我们来搭建kafka的开发环境。</span></div>
+<div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><span style="font-size:18px"><strong>添加依赖</strong></span><br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><span style="font-size:18px"><strong><br>
+</strong></span></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">搭建开发环境需要引入kafka的jar包，一种方式是将Kafka安装包中lib下的jar包加入到项目的classpath中，这种比较简单了。不过我们使用另一种更加流行的方式：使用maven管理jar包依赖。</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">创建好maven项目后，在pom.xml中添加以下依赖：</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">
+<div align="left"><span style="font-family:Consolas; font-size:12px; color:#008080"><span style="font-size:10pt">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span></span><div class="dp-highlighter bg_html"><div class="bar"><div class="tools"><b>[html]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 744px; width: 19px; height: 19px; z-index: 99; "><embed id="ZeroClipboardMovie_1" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="19" name="ZeroClipboardMovie_1" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=1&amp;width=19&amp;height=19" wmode="transparent"></div></div></div><ol start="1" class="dp-xml"><li class="alt"><span><span class="tag">&lt;</span><span class="tag-name">dependency</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">groupId</span><span class="tag">&gt;</span><span>&nbsp;org.apache.kafka</span><span class="tag">&lt;/</span><span class="tag-name">groupId</span><span>&nbsp;</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">artifactId</span><span class="tag">&gt;</span><span>&nbsp;kafka_2.10</span><span class="tag">&lt;/</span><span class="tag-name">artifactId</span><span>&nbsp;</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;</span><span class="tag-name">version</span><span class="tag">&gt;</span><span>&nbsp;0.8.0</span><span class="tag">&lt;/</span><span>&nbsp;</span><span class="tag-name">version</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="tag">&lt;/</span><span class="tag-name">dependency</span><span class="tag">&gt;</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre name="code" class="html" style="display: none; ">&lt;dependency&gt;
+         &lt;groupId&gt; org.apache.kafka&lt;/groupId &gt;
+         &lt;artifactId&gt; kafka_2.10&lt;/artifactId &gt;
+         &lt;version&gt; 0.8.0&lt;/ version&gt;
+&lt;/dependency&gt;</pre><br>
+</div>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">添加依赖后你会发现有两个jar包的依赖找不到。没关系我都帮你想好了，点击<a target="_blank" href="http://download.csdn.net/detail/honglei915/7613037">这里</a>下载这两个jar包，解压后你有两种选择，第一种是使用mvn的install命令将jar包安装到本地仓库，另一种是直接将解压后的文件夹拷贝到mvn本地仓库的com文件夹下，比如我的本地仓库是d:\mvn,完成后我的目录结构是这样的：</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/20140708140300000" alt="目录结构" align="middle"><br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong>配置程序</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">首先是一个充当配置文件作用的接口,配置了Kafka的各种连接参数：</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><div class="dp-highlighter bg_java"><div class="bar"><div class="tools"><b>[java]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 1368px; width: 19px; height: 19px; z-index: 99; "><embed id="ZeroClipboardMovie_2" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="19" name="ZeroClipboardMovie_2" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=2&amp;width=19&amp;height=19" wmode="transparent"></div></div></div><ol start="1" class="dp-j"><li class="alt"><span><span class="keyword">package</span><span>&nbsp;com.sohu.kafkademon;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">interface</span><span>&nbsp;KafkaProperties&nbsp;&nbsp;</span></span></li><li class=""><span>{&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;zkConnect&nbsp;=&nbsp;</span><span class="string">"10.22.10.139:2181"</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;groupId&nbsp;=&nbsp;</span><span class="string">"group1"</span><span>;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;topic&nbsp;=&nbsp;</span><span class="string">"topic1"</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;kafkaServerURL&nbsp;=&nbsp;</span><span class="string">"10.22.10.139"</span><span>;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">int</span><span>&nbsp;kafkaServerPort&nbsp;=&nbsp;</span><span class="number">9092</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">int</span><span>&nbsp;kafkaProducerBufferSize&nbsp;=&nbsp;</span><span class="number">64</span><span>&nbsp;*&nbsp;</span><span class="number">1024</span><span>;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">int</span><span>&nbsp;connectionTimeOut&nbsp;=&nbsp;</span><span class="number">20000</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">int</span><span>&nbsp;reconnectInterval&nbsp;=&nbsp;</span><span class="number">10000</span><span>;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;topic2&nbsp;=&nbsp;</span><span class="string">"topic2"</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;topic3&nbsp;=&nbsp;</span><span class="string">"topic3"</span><span>;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;clientId&nbsp;=&nbsp;</span><span class="string">"SimpleConsumerDemoClient"</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">package com.sohu.kafkademon;
+
+public interface KafkaProperties
+{
+    final static String zkConnect = "10.22.10.139:2181";
+    final static String groupId = "group1";
+    final static String topic = "topic1";
+    final static String kafkaServerURL = "10.22.10.139";
+    final static int kafkaServerPort = 9092;
+    final static int kafkaProducerBufferSize = 64 * 1024;
+    final static int connectionTimeOut = 20000;
+    final static int reconnectInterval = 10000;
+    final static String topic2 = "topic2";
+    final static String topic3 = "topic3";
+    final static String clientId = "SimpleConsumerDemoClient";
+}
+</pre><br>
+<br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong>producer</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong></strong><div class="dp-highlighter bg_java"><div class="bar"><div class="tools"><b>[java]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 1821px; width: 19px; height: 18px; z-index: 99; "><embed id="ZeroClipboardMovie_3" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="18" name="ZeroClipboardMovie_3" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=3&amp;width=19&amp;height=18" wmode="transparent"></div></div></div><ol start="1" class="dp-j"><li class="alt"><span><span class="keyword">package</span><span>&nbsp;com.sohu.kafkademon;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;java.util.Properties;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;kafka.producer.KeyedMessage;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;kafka.producer.ProducerConfig;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span><span class="comment">/**</span>&nbsp;</span></li><li class="alt"><span><span class="comment">&nbsp;*&nbsp;@author&nbsp;leicui&nbsp;bourne_cui@163.com</span>&nbsp;</span></li><li class=""><span><span class="comment">&nbsp;*/</span><span>&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;KafkaProducer&nbsp;</span><span class="keyword">extends</span><span>&nbsp;Thread&nbsp;&nbsp;</span></span></li><li class=""><span>{&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;kafka.javaapi.producer.Producer&lt;Integer,&nbsp;String&gt;&nbsp;producer;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;String&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;Properties&nbsp;props&nbsp;=&nbsp;</span><span class="keyword">new</span><span>&nbsp;Properties();&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;KafkaProducer(String&nbsp;topic)&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"serializer.class"</span><span>,&nbsp;</span><span class="string">"kafka.serializer.StringEncoder"</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"metadata.broker.list"</span><span>,&nbsp;</span><span class="string">"10.22.10.139:9092"</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;producer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;kafka.javaapi.producer.Producer&lt;Integer,&nbsp;String&gt;(</span><span class="keyword">new</span><span>&nbsp;ProducerConfig(props));&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.topic&nbsp;=&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="annotation">@Override</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;run()&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">int</span><span>&nbsp;messageNo&nbsp;=&nbsp;</span><span class="number">1</span><span>;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;(</span><span class="keyword">true</span><span>)&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;messageStr&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;String(</span><span class="string">"Message_"</span><span>&nbsp;+&nbsp;messageNo);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(<span class="string">"Send:"</span><span>&nbsp;+&nbsp;messageStr);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;producer.send(<span class="keyword">new</span><span>&nbsp;KeyedMessage&lt;Integer,&nbsp;String&gt;(topic,&nbsp;messageStr));&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;messageNo++;&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sleep(<span class="number">3000</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(InterruptedException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;TODO&nbsp;Auto-generated&nbsp;catch&nbsp;block</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">package com.sohu.kafkademon;
+
+import java.util.Properties;
+
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+
+/**
+ * @author leicui bourne_cui@163.com
+ */
+public class KafkaProducer extends Thread
+{
+    private final kafka.javaapi.producer.Producer&lt;Integer, String&gt; producer;
+    private final String topic;
+    private final Properties props = new Properties();
+
+    public KafkaProducer(String topic)
+    {
+        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("metadata.broker.list", "10.22.10.139:9092");
+        producer = new kafka.javaapi.producer.Producer&lt;Integer, String&gt;(new ProducerConfig(props));
+        this.topic = topic;
+    }
+
+    @Override
+    public void run() {
+        int messageNo = 1;
+        while (true)
+        {
+            String messageStr = new String("Message_" + messageNo);
+            System.out.println("Send:" + messageStr);
+            producer.send(new KeyedMessage&lt;Integer, String&gt;(topic, messageStr));
+            messageNo++;
+            try {
+                sleep(3000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
+</pre><br>
+<br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong>consumer</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong></strong><div class="dp-highlighter bg_java"><div class="bar"><div class="tools"><b>[java]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 2774px; width: 19px; height: 18px; z-index: 99; "><embed id="ZeroClipboardMovie_4" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="18" name="ZeroClipboardMovie_4" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=4&amp;width=19&amp;height=18" wmode="transparent"></div></div></div><ol start="1" class="dp-j"><li class="alt"><span><span class="keyword">package</span><span>&nbsp;com.sohu.kafkademon;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;java.util.HashMap;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;java.util.List;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;java.util.Map;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;java.util.Properties;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.ConsumerConfig;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.ConsumerIterator;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.KafkaStream;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;kafka.javaapi.consumer.ConsumerConnector;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="comment">/**</span>&nbsp;</span></li><li class=""><span><span class="comment">&nbsp;*&nbsp;@author&nbsp;leicui&nbsp;bourne_cui@163.com</span>&nbsp;</span></li><li class="alt"><span><span class="comment">&nbsp;*/</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;KafkaConsumer&nbsp;</span><span class="keyword">extends</span><span>&nbsp;Thread&nbsp;&nbsp;</span></span></li><li class="alt"><span>{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;ConsumerConnector&nbsp;consumer;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;String&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;KafkaConsumer(String&nbsp;topic)&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consumer&nbsp;=&nbsp;kafka.consumer.Consumer.createJavaConsumerConnector(&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;createConsumerConfig());&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.topic&nbsp;=&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;ConsumerConfig&nbsp;createConsumerConfig()&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties&nbsp;props&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;Properties();&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.connect"</span><span>,&nbsp;KafkaProperties.zkConnect);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"group.id"</span><span>,&nbsp;KafkaProperties.groupId);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.session.timeout.ms"</span><span>,&nbsp;</span><span class="string">"40000"</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.sync.time.ms"</span><span>,&nbsp;</span><span class="string">"200"</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"auto.commit.interval.ms"</span><span>,&nbsp;</span><span class="string">"1000"</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;</span><span class="keyword">new</span><span>&nbsp;ConsumerConfig(props);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="annotation">@Override</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;run()&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String,&nbsp;Integer&gt;&nbsp;topicCountMap&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;HashMap&lt;String,&nbsp;Integer&gt;();&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;topicCountMap.put(topic,&nbsp;<span class="keyword">new</span><span>&nbsp;Integer(</span><span class="number">1</span><span>));&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String,&nbsp;List&lt;KafkaStream&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&gt;&gt;&nbsp;consumerMap&nbsp;=&nbsp;consumer.createMessageStreams(topicCountMap);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KafkaStream&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&nbsp;stream&nbsp;=&nbsp;consumerMap.get(topic).get(</span><span class="number">0</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ConsumerIterator&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&nbsp;it&nbsp;=&nbsp;stream.iterator();&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;(it.hasNext())&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(<span class="string">"receive："</span><span>&nbsp;+&nbsp;</span><span class="keyword">new</span><span>&nbsp;String(it.next().message()));&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sleep(<span class="number">3000</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(InterruptedException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">package com.sohu.kafkademon;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+
+/**
+ * @author leicui bourne_cui@163.com
+ */
+public class KafkaConsumer extends Thread
+{
+    private final ConsumerConnector consumer;
+    private final String topic;
+
+    public KafkaConsumer(String topic)
+    {
+        consumer = kafka.consumer.Consumer.createJavaConsumerConnector(
+                createConsumerConfig());
+        this.topic = topic;
+    }
+
+    private static ConsumerConfig createConsumerConfig()
+    {
+        Properties props = new Properties();
+        props.put("zookeeper.connect", KafkaProperties.zkConnect);
+        props.put("group.id", KafkaProperties.groupId);
+        props.put("zookeeper.session.timeout.ms", "40000");
+        props.put("zookeeper.sync.time.ms", "200");
+        props.put("auto.commit.interval.ms", "1000");
+        return new ConsumerConfig(props);
+    }
+
+    @Override
+    public void run() {
+        Map&lt;String, Integer&gt; topicCountMap = new HashMap&lt;String, Integer&gt;();
+        topicCountMap.put(topic, new Integer(1));
+        Map&lt;String, List&lt;KafkaStream&lt;byte[], byte[]&gt;&gt;&gt; consumerMap = consumer.createMessageStreams(topicCountMap);
+        KafkaStream&lt;byte[], byte[]&gt; stream = consumerMap.get(topic).get(0);
+        ConsumerIterator&lt;byte[], byte[]&gt; it = stream.iterator();
+        while (it.hasNext()) {
+            System.out.println("receive：" + new String(it.next().message()));
+            try {
+                sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+</pre><br>
+<br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong>简单的发送接收</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">运行下面这个程序，就可以进行简单的发送接收消息了：</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong></strong><div class="dp-highlighter bg_java"><div class="bar"><div class="tools"><b>[java]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 3952px; width: 19px; height: 19px; z-index: 99; "><embed id="ZeroClipboardMovie_5" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="19" name="ZeroClipboardMovie_5" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=5&amp;width=19&amp;height=19" wmode="transparent"></div></div></div><ol start="1" class="dp-j"><li class="alt"><span><span class="keyword">package</span><span>&nbsp;com.sohu.kafkademon;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="comment">/**</span>&nbsp;</span></li><li class=""><span><span class="comment">&nbsp;*&nbsp;@author&nbsp;leicui&nbsp;bourne_cui@163.com</span>&nbsp;</span></li><li class="alt"><span><span class="comment">&nbsp;*/</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;KafkaConsumerProducerDemo&nbsp;&nbsp;</span></span></li><li class="alt"><span>{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KafkaProducer&nbsp;producerThread&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;KafkaProducer(KafkaProperties.topic);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;producerThread.start();&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KafkaConsumer&nbsp;consumerThread&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;KafkaConsumer(KafkaProperties.topic);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consumerThread.start();&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">package com.sohu.kafkademon;
+
+/**
+ * @author leicui bourne_cui@163.com
+ */
+public class KafkaConsumerProducerDemo
+{
+    public static void main(String[] args)
+    {
+        KafkaProducer producerThread = new KafkaProducer(KafkaProperties.topic);
+        producerThread.start();
+
+        KafkaConsumer consumerThread = new KafkaConsumer(KafkaProperties.topic);
+        consumerThread.start();
+    }
+}
+</pre><br>
+<br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong>高级别的consumer</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><strong><br>
+</strong></div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px">下面是比较负载的发送接收的程序：</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><div class="dp-highlighter bg_java"><div class="bar"><div class="tools"><b>[java]</b> <a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="ViewSource" title="view plain" onclick="dp.sh.Toolbar.Command(&#39;ViewSource&#39;,this);return false;">view plain</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="CopyToClipboard" title="copy" onclick="dp.sh.Toolbar.Command(&#39;CopyToClipboard&#39;,this);return false;">copy</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="PrintSource" title="print" onclick="dp.sh.Toolbar.Command(&#39;PrintSource&#39;,this);return false;">print</a><a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="About" title="?" onclick="dp.sh.Toolbar.Command(&#39;About&#39;,this);return false;">?</a><div style="position: absolute; left: 374px; top: 4430px; width: 19px; height: 19px; z-index: 99; "><embed id="ZeroClipboardMovie_6" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="19" height="19" name="ZeroClipboardMovie_6" align="middle" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=6&amp;width=19&amp;height=19" wmode="transparent"></div></div></div><ol start="1" class="dp-j"><li class="alt"><span><span class="keyword">package</span><span>&nbsp;com.sohu.kafkademon;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;java.util.HashMap;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;java.util.List;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;java.util.Map;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;java.util.Properties;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.ConsumerConfig;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.ConsumerIterator;&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">import</span><span>&nbsp;kafka.consumer.KafkaStream;&nbsp;&nbsp;</span></span></li><li class="alt"><span><span class="keyword">import</span><span>&nbsp;kafka.javaapi.consumer.ConsumerConnector;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span><span class="comment">/**</span>&nbsp;</span></li><li class=""><span><span class="comment">&nbsp;*&nbsp;@author&nbsp;leicui&nbsp;bourne_cui@163.com</span>&nbsp;</span></li><li class="alt"><span><span class="comment">&nbsp;*/</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;KafkaConsumer&nbsp;</span><span class="keyword">extends</span><span>&nbsp;Thread&nbsp;&nbsp;</span></span></li><li class="alt"><span>{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;ConsumerConnector&nbsp;consumer;&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">final</span><span>&nbsp;String&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;KafkaConsumer(String&nbsp;topic)&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;consumer&nbsp;=&nbsp;kafka.consumer.Consumer.createJavaConsumerConnector(&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;createConsumerConfig());&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.topic&nbsp;=&nbsp;topic;&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;ConsumerConfig&nbsp;createConsumerConfig()&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties&nbsp;props&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;Properties();&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.connect"</span><span>,&nbsp;KafkaProperties.zkConnect);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"group.id"</span><span>,&nbsp;KafkaProperties.groupId);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.session.timeout.ms"</span><span>,&nbsp;</span><span class="string">"40000"</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"zookeeper.sync.time.ms"</span><span>,&nbsp;</span><span class="string">"200"</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;props.put(<span class="string">"auto.commit.interval.ms"</span><span>,&nbsp;</span><span class="string">"1000"</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;</span><span class="keyword">new</span><span>&nbsp;ConsumerConfig(props);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="annotation">@Override</span><span>&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;run()&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String,&nbsp;Integer&gt;&nbsp;topicCountMap&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;HashMap&lt;String,&nbsp;Integer&gt;();&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;topicCountMap.put(topic,&nbsp;<span class="keyword">new</span><span>&nbsp;Integer(</span><span class="number">1</span><span>));&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&lt;String,&nbsp;List&lt;KafkaStream&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&gt;&gt;&nbsp;consumerMap&nbsp;=&nbsp;consumer.createMessageStreams(topicCountMap);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KafkaStream&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&nbsp;stream&nbsp;=&nbsp;consumerMap.get(topic).get(</span><span class="number">0</span><span>);&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ConsumerIterator&lt;<span class="keyword">byte</span><span>[],&nbsp;</span><span class="keyword">byte</span><span>[]&gt;&nbsp;it&nbsp;=&nbsp;stream.iterator();&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;(it.hasNext())&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(<span class="string">"receive："</span><span>&nbsp;+&nbsp;</span><span class="keyword">new</span><span>&nbsp;String(it.next().message()));&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sleep(<span class="number">3000</span><span>);&nbsp;&nbsp;</span></span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(InterruptedException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class=""><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li class="alt"><span>}&nbsp;&nbsp;</span></li></ol></div><pre name="code" class="java" style="display: none; ">package com.sohu.kafkademon;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+
+/**
+ * @author leicui bourne_cui@163.com
+ */
+public class KafkaConsumer extends Thread
+{
+    private final ConsumerConnector consumer;
+    private final String topic;
+
+    public KafkaConsumer(String topic)
+    {
+        consumer = kafka.consumer.Consumer.createJavaConsumerConnector(
+                createConsumerConfig());
+        this.topic = topic;
+    }
+
+    private static ConsumerConfig createConsumerConfig()
+    {
+        Properties props = new Properties();
+        props.put("zookeeper.connect", KafkaProperties.zkConnect);
+        props.put("group.id", KafkaProperties.groupId);
+        props.put("zookeeper.session.timeout.ms", "40000");
+        props.put("zookeeper.sync.time.ms", "200");
+        props.put("auto.commit.interval.ms", "1000");
+        return new ConsumerConfig(props);
+    }
+
+    @Override
+    public void run() {
+        Map&lt;String, Integer&gt; topicCountMap = new HashMap&lt;String, Integer&gt;();
+        topicCountMap.put(topic, new Integer(1));
+        Map&lt;String, List&lt;KafkaStream&lt;byte[], byte[]&gt;&gt;&gt; consumerMap = consumer.createMessageStreams(topicCountMap);
+        KafkaStream&lt;byte[], byte[]&gt; stream = consumerMap.get(topic).get(0);
+        ConsumerIterator&lt;byte[], byte[]&gt; it = stream.iterator();
+        while (it.hasNext()) {
+            System.out.println("receive：" + new String(it.next().message()));
+            try {
+                sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+</pre><br>
+<br>
+</div>
+<div style="font-family:Tahoma; orphans:2; widows:2; font-size:16px"><br>
+</div>
+<br>
+</div>
+</div>
+<br>
+
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+<div class="bdsharebuttonbox bdshare-button-style0-16" style="float: right;" data-bd-bind="1414465881978">
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间" style="background-position:0 -52px !important"></a>
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博" style="background-position:0 -104px !important"></a>
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博" style="background-position:0 -260px !important"></a>
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_renren" data-cmd="renren" title="分享到人人网" style="background-position:0 -208px !important"></a>
+<a href="http://blog.csdn.net/honglei915/article/details/37563647#" class="bds_weixin" data-cmd="weixin" title="分享到微信" style="background-position:0 -1612px !important"></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+<!--192.168.100.35-->
+<ul class="article_next_prev">
+            <li class="prev_article"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shangyipian&#39;]);location.href=&#39;/honglei915/article/details/37564329&#39;;">上一篇</span><a href="http://blog.csdn.net/honglei915/article/details/37564329" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shangyipian&#39;])">漫游Kafka实战篇之搭建Kafka运行环境</a></li>
+            <li class="next_article"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_xiayipian&#39;]);location.href=&#39;/honglei915/article/details/37564595&#39;;">下一篇</span><a href="http://blog.csdn.net/honglei915/article/details/37564595" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_xiayipian&#39;])">漫游Kafka设计篇之数据持久化</a></li>
+</ul>
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/bds_s_v2.js"></script>
+
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+
+        <div id="digg" articleid="37563647">
+            <dl id="btnDigg" class="digg digg_disable">
+                <dt onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_ding&#39;])">顶</dt>
+                <dd>0</dd>
+            </dl>
+            <dl id="btnBury" class="digg digg_disable">
+                <dt onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_cai&#39;])">踩</dt>
+                <dd>0</dd>
+            </dl>
+        </div>
+</div>
+      <dl class="blog-associat-tag">
+        <dt>主题推荐</dt>
+        <dd>
+                <a href="http://www.csdn.net/tag/interface" target="_blank" class="blog-tage-red">interface</a> 
+                <a href="http://www.csdn.net/tag/%E6%9C%8D%E5%8A%A1%E5%99%A8" target="_blank" class="blog-tage-red">服务器</a> 
+                <a href="http://www.csdn.net/tag/hashmap" target="_blank" class="blog-tage-red">hashmap</a> 
+                <a href="http://www.csdn.net/tag/%E7%BB%93%E6%9E%84" target="_blank" class="blog-tage-red">结构</a> 
+                <a href="http://www.csdn.net/tag/%E7%AE%A1%E7%90%86" target="_blank" class="blog-tage-red">管理</a> 
+        </dd>
+    </dl> 
+
+
+<dl class="blog-ass-articl tracking-ad" data-mod="popu_36" id="res-relatived"> 
+     <dt><span>猜你在找</span></dt>    
+<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/u012185296/article/details/34424139" title="_00016 Flume的体系结构介绍以及Flume入门案例(往HDFS上传数据)" strategy="CFRecommendAlgorithm" target="_blank">_00016 Flume的体系结构介绍以及Flume入门案例(往HDFS上传数据)</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/lskyne/article/details/37559835" title="flume-ng+Kafka+Storm+HDFS 实时系统搭建" strategy="CFRecommendAlgorithm" target="_blank">flume-ng+Kafka+Storm+HDFS 实时系统搭建</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/honglei915/article/details/null" title="null" strategy="CFRecommendAlgorithm" target="_blank">null</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/HEYUTAO007/article/details/5766945" title="HBase (2)---数据存储结构" strategy="CFRecommendAlgorithm" target="_blank">HBase (2)---数据存储结构</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/hxpjava1/article/details/20043703" title="hbase-0.96.x相对hbase-0.94.x的改变" strategy="CFRecommendAlgorithm" target="_blank">hbase-0.96.x相对hbase-0.94.x的改变</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/sjiang2142/article/details/8128428" title="java版crc64" strategy="CFRecommendAlgorithm" target="_blank">java版crc64</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/xpsharp/article/details/8362398" title="配置compass的步骤" strategy="CFRecommendAlgorithm" target="_blank">配置compass的步骤</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/xuefengmiao/article/details/38034611" title="ava.net.BindException: Problem binding to [ubuntu-master:9000] java.net.BindException: 地址已在使用; For m" strategy="CFRecommendAlgorithm" target="_blank">ava.net.BindException: Problem binding to [ubuntu-master:9000] java.net.BindException: 地址已在使用; For m</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/ROger__wonG/article/details/9076025" title="自制编译器：静态检查" strategy="CFRecommendAlgorithm" target="_blank">自制编译器：静态检查</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/fanyamin/article/details/16689" title="gettext简介" strategy="CFRecommendAlgorithm" target="_blank">gettext简介</a></dd></dl>
+
+<script type="text/javascript">
+    var searchtitletags = '漫游kafka实战篇之搭建Kafka开发环境' + ',' + 'interface,服务器,hashmap,结构,管理';
+    searchService({
+        index: 'blog',
+        query: searchtitletags,
+        from: 10,
+        size: 10,
+        appendTo: '#res-relatived',
+        url: 'recommend',
+        his: 2,
+        client: "blog_cf_enhance",
+        tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+    });
+
+ </script>   
+
+
+    <div id="ad_cen">
+   
+          <script type="text/javascript">
+              new Ad(4, 'ad_cen');
+          </script>
+    <iframe id="ad_frm_0" frameborder="0" scrolling="no" style="border-width: 0px; overflow: hidden; width: 790px; height: 90px; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad(1).htm"></iframe></div>
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list"><br>&nbsp;&nbsp;暂无评论<br><br><div class="clear"></div></div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form"><div class="guest_link">您还没有登录,请<a href="javascript:void(0);" onclick="javascript:csdn.showLogin(function (dat) {js_logined(dat.data.userName);});">[登录]</a>或<a href="http://passport.csdn.net/account/register?from=http%3A%2F%2Fblog.csdn.net%2Fhonglei915%2Farticle%2Fdetails%2F37563647">[注册]</a></div></div>
+
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '37563647';
+    var commentscount = 0;
+    var islock = false
+</script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/comment.js"></script>
+    <div id="ad_bot">
+    <iframe id="ad_frm_1" frameborder="0" scrolling="no" style="border-width: 0px; overflow: hidden; width: 790px; height: 0px; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad(2).htm"></iframe></div>
+    <script type="text/javascript">
+    new Ad(5, 'ad_bot');
+    </script>
+<div id="report_dialog">
+</div>
+
+<div id="d-top" style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop" style="" title="返回顶部" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_huidaodingbu&#39;])">         
+         <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);
+        
+
+        if($("#comment_content").length>0)
+        {
+            $("#quick-reply").show();
+
+            $("#quick-reply").click(function(){
+                setEditorFocus();
+            });
+        }       
+     
+        var d_top = $('#d-top-a');
+        document.onscroll = function ()
+        {
+            var scrTop = (document.body.scrollTop || document.documentElement.scrollTop);
+            if (scrTop > 500)
+            {
+                d_top.show();
+            } else
+            {
+                d_top.hide();
+            }
+        }
+        $('#d-top-a').click(function ()
+        {
+            scrollTo(0, 0);
+            this.blur();
+            return false;
+        });
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+<div class="tag_list">
+    <h5>
+        <a href="http://www.csdn.net/tag/" target="_blank">核心技术类目</a></h5>
+    <div class="classify">
+<a title="全部主题" href="http://www.csdn.net/tag" target="_blank" onclick="LogClickCount(this,336);">全部主题</a>
+<a title="Hadoop" href="http://g.csdn.net/5272865" target="_blank" onclick="LogClickCount(this,336);">Hadoop</a>
+<a title="AWS" href="http://g.csdn.net/5272866" target="_blank" onclick="LogClickCount(this,336);">AWS</a>
+<a title="移动游戏" href="http://g.csdn.net/5272870" target="_blank" onclick="LogClickCount(this,336);">移动游戏</a>
+<a title="Java" href="http://g.csdn.net/5272871" target="_blank" onclick="LogClickCount(this,336);">Java</a>
+<a title="Android" href="http://g.csdn.net/5272872" target="_blank" onclick="LogClickCount(this,336);">Android</a>
+<a title="iOS" href="http://g.csdn.net/5272873" target="_blank" onclick="LogClickCount(this,336);">iOS</a>
+<a title="Swift" href="http://g.csdn.net/5272868" target="_blank" onclick="LogClickCount(this,336);">Swift</a>
+<a title="智能硬件" href="http://g.csdn.net/5272869" target="_blank" onclick="LogClickCount(this,336);">智能硬件</a>
+<a title="Docker" href="http://g.csdn.net/5272867" target="_blank" onclick="LogClickCount(this,336);">Docker</a>
+<a title="OpenStack" href="http://g.csdn.net/5272925" target="_blank" onclick="LogClickCount(this,336);">OpenStack</a>
+<a title="VPN" href="http://www.csdn.net/tag/vpn" target="_blank" onclick="LogClickCount(this,336);">VPN</a>
+<a title="Spark" href="http://g.csdn.net/5272924" target="_blank" onclick="LogClickCount(this,336);">Spark</a>
+<a title="ERP" href="http://www.csdn.net/tag/erp" target="_blank" onclick="LogClickCount(this,336);">ERP</a>
+<a title="IE10" href="http://www.csdn.net/tag/ie10" target="_blank" onclick="LogClickCount(this,336);">IE10</a>
+<a title="Eclipse" href="http://www.csdn.net/tag/eclipse" target="_blank" onclick="LogClickCount(this,336);">Eclipse</a>
+<a title="CRM" href="http://www.csdn.net/tag/crm" target="_blank" onclick="LogClickCount(this,336);">CRM</a>
+<a title="JavaScript" href="http://www.csdn.net/tag/javascript" target="_blank" onclick="LogClickCount(this,336);">JavaScript</a>
+<a title="数据库" href="http://www.csdn.net/tag/%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank" onclick="LogClickCount(this,336);">数据库</a>
+<a title="Ubuntu" href="http://www.csdn.net/tag/ubuntu" target="_blank" onclick="LogClickCount(this,336);">Ubuntu</a>
+<a title="NFC" href="http://www.csdn.net/tag/nfc" target="_blank" onclick="LogClickCount(this,336);">NFC</a>
+<a title="WAP" href="http://www.csdn.net/tag/wap" target="_blank" onclick="LogClickCount(this,336);">WAP</a>
+<a title="jQuery" href="http://www.csdn.net/tag/jquery" target="_blank" onclick="LogClickCount(this,336);">jQuery</a>
+<a title="BI" href="http://www.csdn.net/tag/bi" target="_blank" onclick="LogClickCount(this,336);">BI</a>
+<a title="HTML5" href="http://www.csdn.net/tag/html5" target="_blank" onclick="LogClickCount(this,336);">HTML5</a>
+<a title="Spring" href="http://www.csdn.net/tag/spring" target="_blank" onclick="LogClickCount(this,336);">Spring</a>
+<a title="Apache" href="http://www.csdn.net/tag/apache" target="_blank" onclick="LogClickCount(this,336);">Apache</a>
+<a title=".NET" href="http://www.csdn.net/tag/.net" target="_blank" onclick="LogClickCount(this,336);">.NET</a>
+<a title="API" href="http://www.csdn.net/tag/api" target="_blank" onclick="LogClickCount(this,336);">API</a>
+<a title="HTML" href="http://www.csdn.net/tag/html" target="_blank" onclick="LogClickCount(this,336);">HTML</a>
+<a title="SDK" href="http://www.csdn.net/tag/sdk" target="_blank" onclick="LogClickCount(this,336);">SDK</a>
+<a title="IIS" href="http://www.csdn.net/tag/iis" target="_blank" onclick="LogClickCount(this,336);">IIS</a>
+<a title="Fedora" href="http://www.csdn.net/tag/fedora" target="_blank" onclick="LogClickCount(this,336);">Fedora</a>
+<a title="XML" href="http://www.csdn.net/tag/xml" target="_blank" onclick="LogClickCount(this,336);">XML</a>
+<a title="LBS" href="http://www.csdn.net/tag/lbs" target="_blank" onclick="LogClickCount(this,336);">LBS</a>
+<a title="Unity" href="http://www.csdn.net/tag/unity" target="_blank" onclick="LogClickCount(this,336);">Unity</a>
+<a title="Splashtop" href="http://www.csdn.net/tag/splashtop" target="_blank" onclick="LogClickCount(this,336);">Splashtop</a>
+<a title="UML" href="http://www.csdn.net/tag/uml" target="_blank" onclick="LogClickCount(this,336);">UML</a>
+<a title="components" href="http://www.csdn.net/tag/components" target="_blank" onclick="LogClickCount(this,336);">components</a>
+<a title="Windows Mobile" href="http://www.csdn.net/tag/windowsmobile" target="_blank" onclick="LogClickCount(this,336);">Windows Mobile</a>
+<a title="Rails" href="http://www.csdn.net/tag/rails" target="_blank" onclick="LogClickCount(this,336);">Rails</a>
+<a title="QEMU" href="http://www.csdn.net/tag/qemu" target="_blank" onclick="LogClickCount(this,336);">QEMU</a>
+<a title="KDE" href="http://www.csdn.net/tag/kde" target="_blank" onclick="LogClickCount(this,336);">KDE</a>
+<a title="Cassandra" href="http://www.csdn.net/tag/cassandra" target="_blank" onclick="LogClickCount(this,336);">Cassandra</a>
+<a title="CloudStack" href="http://www.csdn.net/tag/cloudstack" target="_blank" onclick="LogClickCount(this,336);">CloudStack</a>
+<a title="FTC" href="http://www.csdn.net/tag/ftc" target="_blank" onclick="LogClickCount(this,336);">FTC</a>
+<a title="coremail" href="http://www.csdn.net/tag/coremail" target="_blank" onclick="LogClickCount(this,336);">coremail</a>
+<a title="OPhone " href="http://www.csdn.net/tag/ophone" target="_blank" onclick="LogClickCount(this,336);">OPhone </a>
+<a title="CouchBase" href="http://www.csdn.net/tag/couchbase" target="_blank" onclick="LogClickCount(this,336);">CouchBase</a>
+<a title="云计算" href="http://www.csdn.net/tag/%E4%BA%91%E8%AE%A1%E7%AE%97" target="_blank" onclick="LogClickCount(this,336);">云计算</a>
+<a title="iOS6" href="http://www.csdn.net/tag/iOS6" target="_blank" onclick="LogClickCount(this,336);">iOS6</a>
+<a title="Rackspace " href="http://www.csdn.net/tag/rackspace" target="_blank" onclick="LogClickCount(this,336);">Rackspace </a>
+<a title="Web App" href="http://www.csdn.net/tag/webapp" target="_blank" onclick="LogClickCount(this,336);">Web App</a>
+<a title="SpringSide" href="http://www.csdn.net/tag/springside" target="_blank" onclick="LogClickCount(this,336);">SpringSide</a>
+<a title="Maemo" href="http://www.csdn.net/tag/maemo" target="_blank" onclick="LogClickCount(this,336);">Maemo</a>
+<a title="Compuware" href="http://www.csdn.net/tag/compuware" target="_blank" onclick="LogClickCount(this,336);">Compuware</a>
+<a title="大数据" href="http://www.csdn.net/tag/%E5%A4%A7%E6%95%B0%E6%8D%AE" target="_blank" onclick="LogClickCount(this,336);">大数据</a>
+<a title="aptech" href="http://www.csdn.net/tag/aptech" target="_blank" onclick="LogClickCount(this,336);">aptech</a>
+<a title="Perl" href="http://www.csdn.net/tag/perl" target="_blank" onclick="LogClickCount(this,336);">Perl</a>
+<a title="Tornado" href="http://www.csdn.net/tag/tornado" target="_blank" onclick="LogClickCount(this,336);">Tornado</a>
+<a title="Ruby" href="http://www.csdn.net/tag/ruby" target="_blank" onclick="LogClickCount(this,336);">Ruby</a>
+<a title="Hibernate" href="http://www.csdn.net/hibernate" target="_blank" onclick="LogClickCount(this,336);">Hibernate</a>
+<a title="ThinkPHP" href="http://www.csdn.net/tag/thinkphp" target="_blank" onclick="LogClickCount(this,336);">ThinkPHP</a>
+<a title="HBase" href="http://www.csdn.net/tag/hbase" target="_blank" onclick="LogClickCount(this,336);">HBase</a>
+<a title="Pure" href="http://www.csdn.net/tag/pure" target="_blank" onclick="LogClickCount(this,336);">Pure</a>
+<a title="Solr" href="http://www.csdn.net/tag/solr" target="_blank" onclick="LogClickCount(this,336);">Solr</a>
+<a title="Angular" href="http://www.csdn.net/tag/angular" target="_blank" onclick="LogClickCount(this,336);">Angular</a>
+<a title="Cloud Foundry" href="http://www.csdn.net/tag/cloudfoundry" target="_blank" onclick="LogClickCount(this,336);">Cloud Foundry</a>
+<a title="Redis" href="http://www.csdn.net/tag/redis" target="_blank" onclick="LogClickCount(this,336);">Redis</a>
+<a title="Scala" href="http://www.csdn.net/tag/scala" target="_blank" onclick="LogClickCount(this,336);">Scala</a>
+<a title="Django" href="http://www.csdn.net/tag/django" target="_blank" onclick="LogClickCount(this,336);">Django</a>
+<a title="Bootstrap" href="http://www.csdn.net/tag/bootstrap" target="_blank" onclick="LogClickCount(this,336);">Bootstrap</a>
+    </div>
+</div>
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+            <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/honglei915" target="_blank">
+    <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/1_honglei915.jpg" title="访问我的空间" style="max-width:90%">
+    </a>
+    <br>
+    <span><a href="http://my.csdn.net/honglei915" class="user_name" target="_blank">红磊</a></span>
+</div>
+<div class="interact">
+<a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_guanzhu&#39;])"></a>
+
+ <a href="javascript:void(0);" class="letter" title="[发私信]" onclick="window.open(&#39;http://msg.csdn.net/letters/model?receiver=honglei915&#39;,&#39;_blank&#39;,&#39;height=350,width=700&#39;);_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_sixin&#39;])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+<div id="bms_box"><a href="http://medal.blog.csdn.net/allmedal.aspx" target="_blank"><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/holdon_s2.gif" onmouseover="m_over_m(this,0)" onmouseout="m_out_m()" alt=""></a></div></div>
+<ul id="blog_rank">
+    <li>访问：<span>27401次</span></li>
+    <li>积分：<span>499</span> </li>    
+    <li>等级： <span style="position:relative;display:inline-block;z-index:1">
+            <img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/blog2.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：499 </div>
+        </span>  </li>
+    <li>排名：<span>千里之外</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>15篇</span></li>
+    <li>转载：<span>4篇</span></li>
+    <li>译文：<span>6篇</span></li>
+    <li>评论：<span>12条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字"></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog">
+        <input type="hidden" name="q" id="inputQ">
+        <input type="hidden" name="t" value="blog">
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script>
+<div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/2383433" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Kafka</a><span>(11)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/2420495" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">大数据</a><span>(1)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/2394769" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">代码管理</a><span>(1)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/620392" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Java</a><span>(2)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/630578" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Linux</a><span>(4)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/729845" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Oracle</a><span>(5)</span>
+            </li>
+             <li>
+                <a href="http://blog.csdn.net/honglei915/article/category/619324" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">软件测试</a><span>(1)</span>
+            </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list"><li><a href="http://blog.csdn.net/honglei915/article/month/2014/07">2014年07月</a><span>(13)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2011/05">2011年05月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2011/02">2011年02月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2010/12">2010年12月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2010/11">2010年11月</a><span>(3)</span></li><span class="hidelist" style="display:none;"><li><a href="http://blog.csdn.net/honglei915/article/month/2010/10">2010年10月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2010/09">2010年09月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2010/08">2010年08月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2010/02">2010年02月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2009/12">2009年12月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/honglei915/article/month/2009/11">2009年11月</a><span>(1)</span></li></span><div id="archive_list_button" class="list_closed">展开</div></div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/6073290" title="Tomcat+Axis2 WebService配置SSL单向验证">Tomcat+Axis2 WebService配置SSL单向验证</a><span>(4053)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/4815513" title="selenium中用fireEvent解决select和type无法触发onXXX事件的问题">selenium中用fireEvent解决select和type无法触发onXXX事件的问题</a><span>(3209)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/6447401" title="Linux 发送邮件，抄送+附件，多收件人">Linux 发送邮件，抄送+附件，多收件人</a><span>(2198)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/4988174" title="win7下面，硬盘安装fedora 12">win7下面，硬盘安装fedora 12</a><span>(1957)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5867896" title="rman实现oracle数据库迁移">rman实现oracle数据库迁移</a><span>(1728)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5853189" title="在虚拟机安装的Linux上配置VNC">在虚拟机安装的Linux上配置VNC</a><span>(1579)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37697655" title="漫游Kafka实战篇之客户端API">漫游Kafka实战篇之客户端API</a><span>(777)</span>
+</li>
+<li>
+<a href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET.htm" title="漫游kafka实战篇之搭建Kafka开发环境">漫游kafka实战篇之搭建Kafka开发环境</a><span>(704)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37564757" title="漫游Kafka设计篇之性能优化">漫游Kafka设计篇之性能优化</a><span>(553)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5982236" title="解决ORA-19625">解决ORA-19625</a><span>(545)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/4815513" title="selenium中用fireEvent解决select和type无法触发onXXX事件的问题">selenium中用fireEvent解决select和type无法触发onXXX事件的问题</a><span>(5)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/6073290" title="Tomcat+Axis2 WebService配置SSL单向验证">Tomcat+Axis2 WebService配置SSL单向验证</a><span>(2)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5867896" title="rman实现oracle数据库迁移">rman实现oracle数据库迁移</a><span>(2)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37564329" title="漫游Kafka实战篇之搭建Kafka运行环境">漫游Kafka实战篇之搭建Kafka运行环境</a><span>(1)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5982238" title="RMAN nocatalog完全恢复">RMAN nocatalog完全恢复</a><span>(1)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/5982236" title="解决ORA-19625">解决ORA-19625</a><span>(1)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37697655" title="漫游Kafka实战篇之客户端API">漫游Kafka实战篇之客户端API</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37760631" title="漫游Kafka实现篇之消息和日志">漫游Kafka实现篇之消息和日志</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37565289" title="漫游Kafka设计篇之主从同步">漫游Kafka设计篇之主从同步</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/honglei915/article/details/37932819" title="漫游Kafka实现篇之分布式">漫游Kafka实现篇之分布式</a><span>(0)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend"><iframe id="ad_frm_2" frameborder="0" scrolling="no" style="border-width: 0px; overflow: hidden; width: 195px; height: 200px; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad.htm"></iframe></ul>
+</div>
+<script type="text/javascript">
+ new Ad(12, 'ad_commend');
+</script><div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/37564329#comments">漫游Kafka实战篇之搭建Kafka运行环境</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/u011372731" class="user_name">请叫我包包大人</a>:
+好吧——我最近也在搭建kafka——完全菜鸟。。之前就没有接触过——过来参考下
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/4815513#comments">selenium中用fireEvent解决select和type无法触发onXXX事件的问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/csujiangyu" class="user_name">csujiangyu</a>:
+没怎么看懂了
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/6073290#comments">Tomcat+Axis2 WebService配置SSL单向验证</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/lhf214111967" class="user_name">血多</a>:
+额。第三步。是否弄错了啊。这个应该是配置在C:\apache-tomcat-6.0.35\webap...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/4829866#comments">Java读写修改Property文件</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/yypp158" class="user_name">yypp158</a>:
+请问：system.Property是一个文件吗？
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/4829866#comments">Tomcat+Axis2 WebService配置SSL单向验证</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/yypp158" class="user_name">yypp158</a>:
+你好，如果我想在一个工程里面访问多个需要SSL鉴权的服务器，这样就需要在一份代码里面重复调用Syst...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/4829866#comments">selenium中用fireEvent解决select和type无法触发onXXX事件的问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/blueloosu" class="user_name">blueloosu</a>:
+selenium 的IDE也可以通过各种组合，达到控件获得焦点。比如楼主这组组合，就可以使某种控件成...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/5982238#comments">RMAN nocatalog完全恢复</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/liangcuijava" class="user_name">liangcuijava</a>:
+
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/5867896#comments">rman实现oracle数据库迁移</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/lwtianxie" class="user_name">lwtianxie</a>:
+写的很详细的。。
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/5982236#comments">解决ORA-19625</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/hezhanyan" class="user_name">hezhanyan</a>:
+谢了
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/honglei915/article/details/5982236#comments">rman实现oracle数据库迁移</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/hezhanyan" class="user_name">hezhanyan</a>:
+不错 学习
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+</div>
+
+            <div class="clear">
+            </div>
+        </div>
+        
+
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/cnick.js"></script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/showblogmedal.ashx"></script>
+<script type="text/javascript">
+    document.write('<script type="text/javascript" src="http://csdnimg.cn/pubfooter/js/publib_footer.js?' + Math.floor(new Date() / 120000).toString(36) + '="></' + 'script>');
+</script><script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/publib_footer.js"></script><link rel="stylesheet" type="text/css" href="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/pub_footer_2012.css"><div id="pub_footerall" class="pub_footerall"><dl><dt></dt> <dd><a href="http://www.csdn.net/company/about.html" target="_blank">公司简介</a>|<a href="http://www.csdn.net/company/recruit.html" target="_blank">招贤纳士</a>|<a href="http://www.csdn.net/company/marketing.html" target="_blank">广告服务</a>|<a href="http://www.csdn.net/company/account.html" target="_blank">银行汇款帐号</a>|<a href="http://www.csdn.net/company/contact.html" target="_blank">联系方式</a>|<a href="http://www.csdn.net/company/statement.html" target="_blank">版权声明</a>|<a href="http://www.csdn.net/company/layer.html" target="_blank">法律顾问</a>|<a href="mailto:webmaster@csdn.net">问题报告</a>|<a target="_blank" href="http://www.csdn.net/friendlink.html">合作伙伴</a>|<a href="http://bbs.csdn.net/forums/Service" target="_blank">论坛反馈</a></dd><dd><a href="http://wpa.qq.com/msgrd?v=3&uin=2355263776&site=qq&menu=yes" target="_blank" class="qq">网站客服</a> <a href="http://wpa.qq.com/msgrd?v=3&uin=2251809102&site=qq&menu=yes" target="_blank" class="qq">杂志客服</a> <a href="http://e.weibo.com/csdnsupport/profile" target="_blank" class="weibo">微博客服</a> <a href="mailto:webmaster@csdn.net" class="email" title="联系邮箱">webmaster@csdn.net</a> <span class="phone" title="服务热线">400-600-2320</span></dd><dd>京&nbsp;ICP&nbsp;证&nbsp;070598&nbsp;号</dd><dd>北京创新乐知信息技术有限公司 版权所有</dd><dd>江苏乐知网络技术有限公司 提供商务支持</dd><dd>Copyright © 1999-2014, CSDN.NET, All Rights Reserved&nbsp;<a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202001032100010" target="_blank"><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/gongshang_logos.gif" alt="GongshangLogo" title=""></a></dd></dl></div><div id="note1" class="csdn_note" style="display:none; position:absolute; z-index:9999; width:440px">  <span class="notice_top_arrow"><span class="inner"></span></span>  <div class="box"></div></div><div class="csdn_notice_tip" style="display: none; position: absolute; z-index: 9990; width: 170px; ">  <iframe src="about:blank" frameborder="0" scrolling="no" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe>  <div class="tip_text">您有<strong>0</strong>条新通知</div>  <a href="javascript:void 0" class="close2"></a></div><script id="noticeScript" type="text/javascript" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/notify.js"></script>
+    <script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script><img src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/pv.aspx" border="0" width="0" height="0">
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/counter.js"></script><script type="text/javascript" charset="UTF-8" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/msg.popup.js"></script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad-blog.js"></script><script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad-ms1033.js"></script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad-ms1036_2.js"></script>
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ad-ms1042_3.js"></script>
+
+<script type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/count.js"></script><iframe src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/logs.htm" frameborder="0" width="0" height="0"></iframe>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a>"
+                    + "<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+    });
+</script>
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" type="text/javascript" src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/toolbar.js"></script>
+     <!--new top-->
+
+
+<div id="tag-suggest-pop" style="display: none; ">
+  <div class="relative">
+    <div class="close"></div>
+    <div class="content"><div><span>更多相关资源：</span><a href="http://www.csdn.net/tag/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD" title="关于 开源中国 的主题" target="_blank">开源中国</a><a href="http://www.csdn.net/tag/maven" title="关于 maven 的主题" target="_blank">maven</a><a href="http://www.csdn.net/tag/java" title="关于 java 的主题" target="_blank">java</a><a href="http://www.csdn.net/tag/%E5%BA%93" title="关于 库 的主题" target="_blank">库</a></div></div>
+  </div>
+</div><iframe style="width: 1px; height: 1px; position: absolute; visibility: hidden; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ibm-softlayer-free-news-inner-page-plsf-banner-475-60-30k.htm"></iframe><iframe style="width: 1px; height: 1px; position: absolute; visibility: hidden; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/ibm-softlayer-free-database-banner-960-90-30k.htm"></iframe><iframe style="width: 1px; height: 1px; position: absolute; visibility: hidden; " src="./漫游kafka实战篇之搭建Kafka开发环境 - 红磊的专栏 - 博客频道 - CSDN.NET_files/shuguang-oct-download-sousuojieguoye-banner-728-90-30k.htm"></iframe></body></html>

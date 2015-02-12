@@ -1,0 +1,24 @@
+package com.howbuy.onlinecalc.function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import storm.trident.operation.BaseFunction;
+import storm.trident.operation.TridentCollector;
+import storm.trident.tuple.TridentTuple;
+import backtype.storm.tuple.Values;
+
+@SuppressWarnings("serial")
+public class FundSplitFunc extends BaseFunction
+{
+    public void execute(TridentTuple tuple, TridentCollector collector)
+    {
+        List<String> fundCodes = new ArrayList<String>();
+        fundCodes.add("482002");
+        for (int i = 0; i < fundCodes.size(); i++)
+        {
+            String fundcode = fundCodes.get(i);
+            collector.emit(new Values(fundcode));
+        }
+    }
+}

@@ -1,0 +1,286 @@
+package com.howbuy.onlinecalc.utils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class FundService {
+
+	/**
+	 * 获得基金代码。
+	 * 
+	 * @return
+	 */
+	public static List<FundVo> getFundVos() {
+		List<FundVo> fundVos = new ArrayList<FundVo>();
+		try {
+			String sql = "SELECT DISTINCT A.JJDM,A.CLRQ FROM JJXX1 A,JJHB B WHERE A.JJDM = B.JJDM AND A.CPFL = 2";
+			List<Map<String, Object>> list = query(sql);
+			for (Map<String, Object> map : list) {
+				if (map.get("JJDM") != null) {
+					FundVo vo = new FundVo();
+					vo.setJjdm(map.get("JJDM").toString());
+					vo.setClrq(map.get("CLRQ").toString());
+					fundVos.add(vo);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fundVos;
+	}
+
+	/**
+	 * 获取私募基金经理人。
+	 * 
+	 * @return
+	 */
+	public static List<Smjr> getSmjlrs() {
+		List<Smjr> smjlrs = new ArrayList<Smjr>();
+		try {
+			String sql = "SELECT JJDM,RYDM,QSRQ,JSRQ FROM SMJR";
+			List<Map<String, Object>> list = query(sql);
+			for (Map<String, Object> map : list) {
+				String jjdm = map.get("JJDM").toString();
+				String rydm = map.get("RYDM").toString();
+				String qsrq = map.get("QSRQ").toString();
+				String jsrq = map.get("JSRQ").toString();
+				if (StringUtils.isNotBlank(jjdm) && StringUtils.isNotBlank(jsrq) && StringUtils.isNotBlank(rydm)
+						&& StringUtils.isNotBlank(qsrq)) {
+					Smjr smjr = new Smjr();
+					smjr.setJjdm(jjdm);
+					smjr.setJsrq(jsrq);
+					smjr.setQsrq(qsrq);
+					smjr.setRydm(rydm);
+					smjlrs.add(smjr);
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return smjlrs;
+	}
+
+	/**
+	 * 获取单个基金的回报。
+	 * 
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] getSmljList(String jjdm, String start, String end) {
+		double[] smljs = null;
+		int index = 0;
+		try {
+			String sql = "SELECT HBCL FROM SMLJ WHERE JJDM = ? AND JZRQ > ? AND JZRQ < ?";
+			List<Map<String, Object>> list = query(sql, jjdm, start, end);
+			if (list != null && !list.isEmpty()) {
+				smljs = new double[list.size()];
+				for (Map<String, Object> map : list) {
+					Object hbcl = map.get("HBCL");
+					if (hbcl != null) {
+						smljs[index++] = Double.valueOf(hbcl.toString());
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return smljs;
+	}
+
+	/**
+	 * 获取基金回报信息
+	 * 
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] getJjhbList(String jjdm, String start, String end) {
+		double[] jjhbs = null;
+		int index = 0;
+		try {
+			String sql1 = "SELECT HBCL FROM JJHB T WHERE T.JJDM = ? AND T.JZRQ >=? AND T.JZRQ <= ? ORDER BY JZRQ DESC";
+			String sql2 = "SELECT HBCL FROM JJHB T WHERE T.JJDM = ? AND T.JZRQ <= ? ORDER BY JZRQ DESC";
+			List<Map<String, Object>> list = null;
+			if (end != null && !"".equals(end.trim())) {
+				list = query(sql1, jjdm, start, end);
+			} else {
+				list = query(sql2, jjdm, end);
+			}
+			if (list != null && !list.isEmpty()) {
+				jjhbs = new double[list.size()];
+				for (Map<String, Object> map : list) {
+					Object hbcl = map.get("HBCL");
+					if (hbcl != null) {
+						jjhbs[index++] = Double.valueOf(hbcl.toString());
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return jjhbs;
+	}
+
+	/**
+	 * 计算公募基金最大赢利和最大回撤
+	 * 
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] calcRealGm(String jjdm, String start, String end) {
+        return caclProfitLost(getJjhbList(jjdm, start, end));
+	}
+
+	/**
+	 * 计算私募经理最大赢利和最大回撤
+	 * @param jjdm
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static double[] caclRealSm(String jjdm, String start, String end) {
+		 return caclProfitLost(getSmljList(jjdm, start, end));
+	}
+
+	/**
+	 * 计算算法
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static double[] caclProfitLost(double[] list) {
+		double[] result = new double[2];
+		boolean flag = false;
+		if (list != null) {
+			double max = list[0];
+			double min = list[0];
+			for (int i = 0; i < list.length; i++) {
+				if (list[i] == 99999) {
+					flag = true;
+				}
+				for (int j = i + 1; j < list.length; j++) {
+					if (list[j] == -100 || list[j] == 99999) {
+						flag = true;
+						break;
+					}
+					double value = (list[i] - list[j]) / (list[j] + 100) * 100;
+					if (value > max) {
+						max = value;
+					}
+					if (value < min) {
+						min = value;
+					}
+				}
+				if (flag) {
+					break;
+				}
+			}
+			if (max < 0) {
+				max = 0;
+			}
+			if (min > 0) {
+				min = 0;
+			}
+			result[0] = max;
+			result[1] = min;
+		}
+		return result;
+	}
+
+	/**
+	 * 通用数据查询方法
+	 * 
+	 * @param sql
+	 * @param params
+	 * @return
+	 * @throws Exception
+	 */
+	public static List query(String sql, Object... params) throws Exception {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		List list = new ArrayList();
+		try {
+			conn = DBConnection.getConn();
+			ps = conn.prepareStatement(sql.toString());
+			if (params != null) {
+				for (int i = 0; i < params.length; i++) {
+					ps.setObject(i + 1, params[i]);
+				}
+			}
+			rs = ps.executeQuery();
+			ResultSetMetaData resultSetMetaData = rs.getMetaData();
+			int columns = resultSetMetaData.getColumnCount();
+			while (rs.next()) {
+				Map m = new HashMap();
+				for (int i = 0; i < columns; i++) {
+					Object obj = null;
+					int type = resultSetMetaData.getColumnType(i + 1);
+					int scale = resultSetMetaData.getScale(i + 1);
+					String columnName = resultSetMetaData.getColumnName(i + 1);
+					switch (type) {
+					case Types.LONGVARCHAR:
+						obj = rs.getLong(columnName);
+						break;
+					case Types.CHAR:
+						obj = rs.getCharacterStream(columnName);
+						break;
+					case Types.BIGINT:
+						obj = rs.getLong(columnName);
+						break;
+					case Types.NUMERIC:
+						switch (scale) {
+						case 0:
+							obj = rs.getInt(columnName);
+							break;
+						case -127:
+							obj = rs.getFloat(columnName);
+							break;
+						default:
+							obj = rs.getBigDecimal(columnName);
+						}
+						break;
+					case Types.VARCHAR:
+						obj = rs.getString(columnName);
+						break;
+					case Types.DATE:
+						obj = rs.getString(columnName);
+						break;
+					case Types.TIMESTAMP:
+						obj = rs.getDate(columnName);
+						break;
+					case Types.BLOB:
+						obj = rs.getBlob(columnName);
+						break;
+					default:
+						obj = rs.getString(columnName);
+					}
+					m.put(columnName.toUpperCase(), obj);
+				}
+				list.add(m);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			DBConnection.close(rs);
+			DBConnection.close(ps);
+			DBConnection.close(conn);
+		}
+		return list;
+	}
+}

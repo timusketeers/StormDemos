@@ -1,0 +1,33 @@
+package com.howbuy.onlinecalc.utils;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class DateUtils {
+
+	public static final String PATTERN = "yyyyMMdd";
+
+	/**
+	 * 日期相减
+	 * 
+	 * @param date
+	 * @param days
+	 * @return
+	 */
+	public static String getBeforeDate(Date date, int field, int size) {
+		SimpleDateFormat df = new SimpleDateFormat(PATTERN);
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(field, -size);
+		return df.format(calendar.getTime());
+	}
+
+	/**
+	 * 获取当前日期
+	 * 
+	 * @return
+	 */
+	public static String getCurrentDate() {
+		return new SimpleDateFormat(PATTERN).format(new Date());
+	}
+}

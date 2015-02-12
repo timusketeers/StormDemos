@@ -1,0 +1,52 @@
+package com.howbuy.onlinecalc.bolt;
+
+import java.util.List;
+import java.util.Map;
+
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+
+/**
+ * 这个bolt负责从不同的维度分发到下一个不同维度的计算节点.
+ * 
+ * 例如，从这个节点会同时将一个fundCode元组分发到各个维度的计算单元
+ * 
+ * (包括一个月盈亏的计算单元、 三个月盈亏的计算单元、 6个月盈亏的计算单元.)
+ * @author li.zhang
+ *
+ */
+@SuppressWarnings("serial")
+public class DimensionSplitBolt extends BaseRichBolt
+{
+    private OutputCollector collector;
+    
+    @SuppressWarnings("rawtypes")
+    public void prepare(Map stormConf, TopologyContext ctx, OutputCollector collector)
+    {
+        this.collector = collector;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void execute(Tuple tuple)
+    {
+        System.out.println("[DimensionSplitBolt]=================");
+        List<String> fundcodes = (List<String>)tuple.getValues().get(0);
+        for (int i = 0; i < fundcodes.size(); i++)
+        {
+            Object fundcode = fundcodes.get(i);
+            collector.emit(tuple, new Values(fundcode));
+        }
+        
+        collector.ack(tuple);
+    }
+
+    public void declareOutputFields(OutputFieldsDeclarer declarer)
+    {
+        declarer.declare(new Fields("fundcode"));
+    }
+}

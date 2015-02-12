@@ -1,0 +1,22 @@
+ADFHOST1396="http://csdnim.allyes.com";
+ADFCID1396=15;
+ADFBID1396=1396;
+ADFLOC='CNSH0000';
+ADFUSER1396="http://csdnim.allyes.com/main/adfclick?d=csdnim&i=z15,10095989,1396,6857&rf=&a=dAAaIeb7e0BTexp19XDxad1ec&u=";
+ALLYESID4="07DCBAAE917C5082";
+ADFPGC="2,5,15,0,1765,1396,6857,10095989";
+
+document.write("<script language=\"javascript\" type=\"text/javascript\">\n");
+document.write("	yigao_width = 728;\n");
+document.write("	yigao_height = 90;\n");
+document.write("	yigao_sid = \"cb4095f5a0e02918\";\n");
+document.write("	yigao_msid = \"88a399d653a1dece\";\n");
+document.write("	yigao_uid = 100418;\n");
+document.write("	yigao_zid = 149153;\n");
+document.write("	yigao_pid = 2;\n");
+document.write("	yigao_type = 1;\n");
+document.write("	yigao_adamount = 1;\n");
+document.write("	yigao_cols = 1;\n");
+document.write("</Scr"+"ipt>\n");
+document.write("<script language=\"javascript\" src=\"http://monitor.yigao.com/info.js\"></Scr"+"ipt>");
+
